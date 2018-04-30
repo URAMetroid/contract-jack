@@ -36,7 +36,6 @@ protected:
 	uint32	HandleCallback(uint32 dwParam1, uint32 dwParam2);
 	void	ChangeCDKey();
 	void	RequestValidate();
-	void	CreateMPMissionFile();
 
 	void	Update();
 

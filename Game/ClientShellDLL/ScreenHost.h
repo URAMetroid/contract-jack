@@ -46,7 +46,7 @@ protected:
 	void	RunServerOptions();
 	void	HandleLaunch();
 
-	void	UpdateBandwidth();
+	void	UpdateBandwidth(bool bResetMaxPlayers);
 	void	UpdateGameType();
 	void	SaveOptions();
 

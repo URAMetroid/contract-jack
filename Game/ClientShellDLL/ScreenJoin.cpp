@@ -121,6 +121,11 @@ public:
 		ServerEntry const& seX = x.m_mapIter->second;
 		ServerEntry const& seY = y.m_mapIter->second;
 
+		if( seX.m_nPing == ( uint16 )-1 )
+			return false;
+		if( seY.m_nPing == ( uint16 )-1 )
+			return true;
+
 		return (seX.m_nPing < seY.m_nPing );
 	}
 };
@@ -261,7 +266,10 @@ static bool SetSummaryInfo( CLTGUIColumnCtrl& columnCtrl, char const* pszAddress
 	pColumn->SetString( aTempBuffer);
 
 	// Do the ping
-	sprintf(aTempBuffer, "%d", serverEntry.m_nPing);
+	if( serverEntry.m_nPing == ( uint16 )-1 )
+		aTempBuffer[0] = '\0';
+	else
+		sprintf(aTempBuffer, "%d", serverEntry.m_nPing);
 	pColumn = columnCtrl.GetColumn( nColumnIndex++ );
 	pColumn->SetString( aTempBuffer);
 
@@ -321,7 +329,8 @@ CScreenJoin::CScreenJoin() :
 	m_nPingFilter		( 0 ),
 	m_nModFilter		( 0 ),
 	m_eUpdateDirState	( eUpdateDirState_Idle ),
-	m_pServerListCtrl	( NULL )
+	m_pServerListCtrl	( NULL ),
+	m_bBrowseInternet	( true )
 {
 	
 }
@@ -479,7 +488,7 @@ LTBOOL CScreenJoin::Build()
 	uint8 nFontSize = g_pLayoutMgr->GetDialogFontSize();
 
 	CLTGUITextCtrl*	pText = debug_new(CLTGUITextCtrl);
-    if (!pText->Create(LoadTempString(IDS_QUERYING), NULL, LTNULL, pFont, nFontSize, this))
+    if (!pText->Create(FormatTempString( IDS_QUERYING, "" ), NULL, LTNULL, pFont, nFontSize, this))
 	{
 		debug_delete(pText);
         return LTFALSE;
@@ -750,6 +759,9 @@ void    CScreenJoin::OnFocus(LTBOOL bFocus)
 			bCreatedBrowsers = true;
 		}
 
+		// Reset our browse internet option.
+		m_bBrowseInternet = true;
+
 		// Only do startup if the browsers haven't been created yet.
 		if( bCreatedBrowsers )
 			ChangeState(eState_Startup);
@@ -878,48 +890,61 @@ void CScreenJoin::DisplayDetails()
 
 		//find friendly fire value
 		char *pTok = strtok(szOptionsString,";");
-		sOptions += LoadTempString(IDS_FRIENDLY_FIRE);
-		sOptions += ": ";
-		pTok = strpbrk( pTok, "0123456789" );
-		if (pTok && *pTok >= '1')
+		if (pTok)
 		{
-			sOptions += LoadTempString(IDS_YES);
+
+			sOptions += LoadTempString(IDS_FRIENDLY_FIRE);
+			sOptions += ": ";
+			pTok = strpbrk( pTok, "0123456789" );
+			if (pTok && *pTok >= '1')
+			{
+				sOptions += LoadTempString(IDS_YES);
+			}
+			else
+			{
+				sOptions += LoadTempString(IDS_NO);
+			}
+			sOptions += ";  ";
 		}
-		else
-		{
-			sOptions += LoadTempString(IDS_NO);
-		}
-		sOptions += ";  ";
 
 		//find weapon stay value
 		pTok = strtok(NULL,";");
-		sOptions += LoadTempString(IDS_WEAPONS_STAY);
-		sOptions += ": ";
-		pTok = strpbrk( pTok, "0123456789" );
-		if (pTok && *pTok >= '1')
+		if (pTok)
 		{
-			sOptions += LoadTempString(IDS_YES);
+			sOptions += LoadTempString(IDS_WEAPONS_STAY);
+			sOptions += ": ";
+			pTok = strpbrk( pTok, "0123456789" );
+			if (pTok && *pTok >= '1')
+			{
+				sOptions += LoadTempString(IDS_YES);
+			}
+			else
+			{
+				sOptions += LoadTempString(IDS_NO);
+			}
+			sOptions += ";  ";
 		}
-		else
-		{
-			sOptions += LoadTempString(IDS_NO);
-		}
-		sOptions += ";  ";
 
 		//num rounds
 		pTok = strtok(NULL,";");
-		sOptions += LoadTempString(IDS_ROUNDS);
-		sOptions += ": ";
-		pTok = strpbrk( pTok, "0123456789" );
-		sOptions += pTok;
-		sOptions += ";  ";
+		if (pTok)
+		{
+			sOptions += LoadTempString(IDS_ROUNDS);
+			sOptions += ": ";
+			pTok = strpbrk( pTok, "0123456789" );
+			sOptions += pTok;
+			sOptions += ";  ";
+		}
 
 		//runspeed
 		pTok = strtok(NULL,";");
-		sOptions += LoadTempString(IDS_RUN_SPEED);
-		sOptions += ": ";
-		pTok = strpbrk( pTok, "0123456789" );
-		sOptions += pTok;
+		if (pTok)
+		{
+			sOptions += LoadTempString(IDS_RUN_SPEED);
+			sOptions += ": ";
+			pTok = strpbrk( pTok, "0123456789" );
+			sOptions += pTok;
+		}
 
 	}
 
@@ -1175,6 +1200,9 @@ bool CScreenJoin::PreState_UpdateDir()
 	// Clear out the server entry map.
 	m_cServerMap.clear( );
 
+	// Reset our browse internet option.
+	m_bBrowseInternet = true;
+
 	// Start off our state on the retialpublic.
 	m_eUpdateDirState = eUpdateDirState_Idle;
 
@@ -1210,7 +1238,8 @@ bool CScreenJoin::PreState_QueryDetails()
 	IGameSpyBrowser* pGameSpyBrowser = ( serverEntry.m_bDemoServer ) ? 
 		g_pClientMultiplayerMgr->GetDemoServerBrowser( ) : 
 		g_pClientMultiplayerMgr->GetRetailServerBrowser( );
-	if( !pGameSpyBrowser->RequestServerDetails( szIP, nPort, ServerInfoCallback, this ))
+	if( !pGameSpyBrowser->RequestServerDetails( szIP, nPort, serverEntry.m_bDirectConnect, 
+		ServerInfoCallback, this ))
 	{
 		SetDetailErrorMessage(LoadTempString(IDS_SERVER_NORESPONSE));
 		return false;
@@ -1268,53 +1297,65 @@ void CScreenJoin::Update_State_Startup()
 void CScreenJoin::Update_State_UpdateDir()
 {
 	IGameSpyBrowser* pResponseGameSpyBrowser;
+	bool bRespondPublic;
 	EUpdateDirState eRequestUpdateDirState;
 	IGameSpyBrowser* pRequestGameSpyBrowser;
 	bool bRequestPublic;
+	uint32 nStringId = -1;
 
 	// Setup the response/request data based on the state we're
 	// in.  The response variables tell us what gamespybrowser
 	// to check for status.  If we get a response, we switch to 
 	// the new updatedirstate and request a new dir.
+	// We do lan games first since internet games can take longer to browse for.
 	switch( m_eUpdateDirState )
 	{
 		case eUpdateDirState_Idle:
 		{
 			pResponseGameSpyBrowser			= g_pClientMultiplayerMgr->GetRetailServerBrowser( );
-			eRequestUpdateDirState			= eUpdateDirState_RetailPublic;
-			pRequestGameSpyBrowser			= g_pClientMultiplayerMgr->GetRetailServerBrowser( );
-			bRequestPublic					= true;
-		}
-		break;
-		case eUpdateDirState_RetailPublic:
-		{
-			pResponseGameSpyBrowser			= g_pClientMultiplayerMgr->GetRetailServerBrowser( );
+			bRespondPublic					= false;
 			eRequestUpdateDirState			= eUpdateDirState_RetailLan;
 			pRequestGameSpyBrowser			= g_pClientMultiplayerMgr->GetRetailServerBrowser( );
 			bRequestPublic					= false;
+			nStringId						= IDS_LAN_RETAIL;
 		}
 		break;
 		case eUpdateDirState_RetailLan:
 		{
 			pResponseGameSpyBrowser			= g_pClientMultiplayerMgr->GetRetailServerBrowser( );
-			eRequestUpdateDirState			= eUpdateDirState_DemoPublic;
-			pRequestGameSpyBrowser			= g_pClientMultiplayerMgr->GetDemoServerBrowser( );
-			bRequestPublic					= true;
-		}
-		break;
-		case eUpdateDirState_DemoPublic:
-		{
-			pResponseGameSpyBrowser			= g_pClientMultiplayerMgr->GetDemoServerBrowser( );
+			bRespondPublic					= false;
 			eRequestUpdateDirState			= eUpdateDirState_DemoLan;
 			pRequestGameSpyBrowser			= g_pClientMultiplayerMgr->GetDemoServerBrowser( );
 			bRequestPublic					= false;
+			nStringId						= IDS_LAN_DEMO;
 		}
 		break;
 		case eUpdateDirState_DemoLan:
 		{
 			pResponseGameSpyBrowser			= g_pClientMultiplayerMgr->GetDemoServerBrowser( );
+			bRespondPublic					= false;
+			eRequestUpdateDirState			= eUpdateDirState_RetailPublic;
+			pRequestGameSpyBrowser			= g_pClientMultiplayerMgr->GetRetailServerBrowser( );
+			bRequestPublic					= true;
+			nStringId						= IDS_INTERNET_RETAIL;
+		}
+		break;
+		case eUpdateDirState_RetailPublic:
+		{
+			pResponseGameSpyBrowser			= g_pClientMultiplayerMgr->GetRetailServerBrowser( );
+			bRespondPublic					= true;
+			eRequestUpdateDirState			= eUpdateDirState_DemoPublic;
+			pRequestGameSpyBrowser			= g_pClientMultiplayerMgr->GetDemoServerBrowser( );
+			bRequestPublic					= true;
+			nStringId						= IDS_INTERNET_DEMO;
+		}
+		break;
+		case eUpdateDirState_DemoPublic:
+		{
+			pResponseGameSpyBrowser			= g_pClientMultiplayerMgr->GetDemoServerBrowser( );
+			bRespondPublic					= true;
 			eRequestUpdateDirState			= eUpdateDirState_Finished;
-			pRequestGameSpyBrowser			= NULL; // No new request needed when we get here.
+			pRequestGameSpyBrowser			= NULL;
 			bRequestPublic					= false;
 		}
 		break;
@@ -1343,14 +1384,43 @@ void CScreenJoin::Update_State_UpdateDir()
 		case IGameSpyBrowser::eBrowserStatus_Complete:
 		case IGameSpyBrowser::eBrowserStatus_Error:
 		{
+			// Check if we just got an error trying to browse internet games.
+			if( pResponseGameSpyBrowser->GetBrowserStatus( ) == IGameSpyBrowser::eBrowserStatus_Error &&
+				bRespondPublic )
+			{
+				// Don't browse internet games again.
+				m_bBrowseInternet = false;
+			}
+
 			// Stop any previous requests we were doing.
 			pResponseGameSpyBrowser->HaltRequest( );
 
 			// Make the new request.  If there isn't anything setup
 			// to request from, then we're done.
-			if( pRequestGameSpyBrowser )
+			// If this is a LAN game, go ahead and make the request.  If it's
+			// internet, only do request if we supposed to browse internet.
+			if( pRequestGameSpyBrowser && ( !bRequestPublic || m_bBrowseInternet ))
 			{
+				// Update the status text.
+				CLTGUITextCtrl*	pText = ( CLTGUITextCtrl* )m_pWait->GetControl( 0 );
+				if( pText )
+				{
+					std::string sTemp = LoadTempString( nStringId );
+					pText->SetString( FormatTempString( IDS_QUERYING, sTemp.c_str( )));
+
+					uint16 w = 16+pText->GetBaseWidth();
+					uint16 h = 16+pText->GetBaseHeight();
+
+					m_pWait->SetSize( w, h );
+					uint16 x = (640-w)/2;
+					uint16 y = (480-h)/2;
+					m_pWait->SetBasePos(LTIntPt(x,y));
+				}
+
 				uint16 nPort = atoi( m_szPort );
+
+				// Make sure the selection is cleared.
+				m_sSelectedServerAddress = "";
 
 				// Request the next serverlist.
 				pRequestGameSpyBrowser->RequestServerList( 
@@ -1598,7 +1668,7 @@ void CScreenJoin::ReadCoopDetails(std::string& sOptions,CLTMsgRef_Read& cRead)
 	}
 }
 
-static bool ReadServerEntry( IGameSpyBrowser& gameSpyBrowser, IGameSpyBrowser::HGAMESERVER hGameServer, std::string& sPrivateAddress, ServerEntry& serverEntry )
+static bool ReadServerEntry( IGameSpyBrowser& gameSpyBrowser, IGameSpyBrowser::HGAMESERVER hGameServer, std::string& sPrivateAddres, ServerEntry& serverEntry )
 {
 	char szString[256];
 
@@ -1612,10 +1682,10 @@ static bool ReadServerEntry( IGameSpyBrowser& gameSpyBrowser, IGameSpyBrowser::H
 		return false;
 
 	// Create a combined address string. 
-	sPrivateAddress = szPrivateAddress;
-	sPrivateAddress += ":";
+	sPrivateAddres = szPrivateAddress;
+	sPrivateAddres += ":";
 	sprintf( szString, "%d", nPrivatePort );
-	sPrivateAddress += szString;
+	sPrivateAddres += szString;
 
 	// Create a combined address string. 
 	serverEntry.m_sPublicAddress = szPublicAddress;
@@ -1708,9 +1778,16 @@ void CScreenJoin::ServerInfoCallback( IGameSpyBrowser& gameSpyBrowser, IGameSpyB
 
 	// Set whether this is a demo server or a retail server.
 	serverEntry.m_bDemoServer = ( &gameSpyBrowser == g_pClientMultiplayerMgr->GetDemoServerBrowser( ));
-
+	
 	// Assume we don't need to add this to our listctrl.
 	bool bAddToList = false;
+
+	// Check if this is a server we're getting details on.
+	if( !pScreenJoin->m_sSelectedServerAddress.empty( ))
+	{
+		// Use the previous private address we have saved.
+		sPrivateAddress = pScreenJoin->m_sSelectedServerAddress;
+	}
 
 	// Check if this server isn't in our map yet.  
 	TServerEntryMap::iterator iter = pScreenJoin->m_cServerMap.find(sPrivateAddress);
@@ -1737,7 +1814,6 @@ void CScreenJoin::ServerInfoCallback( IGameSpyBrowser& gameSpyBrowser, IGameSpyB
 		// Copy in the serverentry.
 		iter->second = serverEntry;
 	}
-
 
 	// Setup the control with the summary information.  We need to send the string
 	// key from the map because column control uses its string data and the local

@@ -26,8 +26,8 @@ int const GAME_HANDSHAKE_VER_MAJOR = 1;
 int const GAME_HANDSHAKE_VER_MINOR = 0;
 int const GAME_HANDSHAKE_VER = ((GAME_HANDSHAKE_VER_MAJOR << 8) + GAME_HANDSHAKE_VER_MINOR);
 
-static const uint32 s_nBuildNumber = 186;
-static const char* s_szNetVersion	= "CJ v1.0";
+static const uint32 s_nBuildNumber = 193;
+static const char* s_szNetVersion	= "CJ v1.1";
 
 const CVersionMgr::TSaveVersion CVersionMgr::kSaveVersion__1_0 = s_nBuildNumber;
 const CVersionMgr::TSaveVersion CVersionMgr::kSaveVersion__CurrentBuild = s_nBuildNumber;

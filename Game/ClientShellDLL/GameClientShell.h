@@ -155,6 +155,9 @@ public:
 	// Runs a start command.
 	bool		LaunchFromString( char const* pszFile, char const* pszParameters );
 
+	// Creates the mpmission file dynamically.
+	void	CreateMPMissionFile();
+
 protected :
     uint32      OnEngineInitialized(RMode *pMode, LTGUID *pAppGuid);
 	void		OnEngineTerm();

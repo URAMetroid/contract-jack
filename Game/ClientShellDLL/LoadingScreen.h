@@ -65,12 +65,15 @@ public:
 
 // Internal functions
 protected:
-#ifdef NOPS2
+
+	// Updates the session name when it changes.
+	void	UpdateSessionName( );
+
 	static unsigned long WINAPI ThreadBootstrap(void *pData);
 	int RunThread();
-#endif
+
 private:
-#ifdef NOPS2
+
 	// The thread handle
 	HANDLE m_hThreadHandle;
 	// Events...
@@ -79,8 +82,6 @@ private:
 
 	CRITICAL_SECTION m_MissionUpdate;
 	
-#endif
-
 	LTBOOL	m_bOldFogEnable;
 	int		m_nOldFarZ;
 

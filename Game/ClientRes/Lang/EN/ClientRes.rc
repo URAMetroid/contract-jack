@@ -213,7 +213,7 @@ BEGIN
     IDS_HELP_ADD_WEAPONS    "Add items to the restricted list."
     IDS_HELP_REM_WEAPONS    "Remove items from the restricted list."
     IDS_MISSING_WORLD       "Unable to load world resources."
-    IDS_GAME_VERSION        "v1.0"
+    IDS_GAME_VERSION        "v1.1"
     IDS_HOST_NAME_DE_DEFAULT "CJ Demolition"
     IDS_WEAPONSSTAY_HELP    "Toggle whether or not weapons stay after picking them up."
     IDS_HELP_FILTER_TYPE    "Set filtering of servers based on game type."
@@ -497,6 +497,10 @@ BEGIN
     IDS_HELP_HUDLAYOUT      "Set the style of the interface display."
     IDS_NO_INVENTORY        "[No Inventory]"
     IDS_VEHICLETURN         "Vehicle turn speed"
+	IDS_INTERNET_RETAIL		"Internet"
+	IDS_INTERNET_DEMO		"Internet"
+	IDS_LAN_RETAIL			"LAN"
+	IDS_LAN_DEMO			"LAN"
 END
 
 STRINGTABLE 
@@ -874,7 +878,7 @@ BEGIN
     IDS_KEY_PICKUP          "Found %1!s!!"
     IDS_STATUS_STRING       "Status: %1!s!!"
     IDS_WAITING             "Waiting"
-    IDS_QUERYING            "Querying servers"
+	IDS_QUERYING            "Querying servers: %1!s!"
     IDS_VALIDATING          "Validating CD Key"
     IDS_TARGET_HACKINGCARDREADER "decoding"
     IDS_LOAD_TIPS           "Load screen tips"

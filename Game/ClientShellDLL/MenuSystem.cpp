@@ -55,6 +55,7 @@ CMenuSystem::CMenuSystem( )
 	m_pTeamCtrl = NULL;
 	m_pHostCtrl = NULL;
 	m_pServerCtrl = NULL;
+	m_pServerIPCtrl = NULL;
 }
 
 LTBOOL CMenuSystem::Init()
@@ -87,6 +88,9 @@ LTBOOL CMenuSystem::Init()
 	AddControl(" ",0,LTTRUE);
 	uint16 nServerCtrlId = AddControl("",0,LTTRUE);
 	m_pServerCtrl = ( CLTGUITextCtrl* )m_List.GetControl( nServerCtrlId );
+
+	nServerCtrlId = AddControl("",0,LTTRUE);
+	m_pServerIPCtrl = ( CLTGUITextCtrl* )m_List.GetControl( nServerCtrlId );
 
 
 	g_pInterfaceMgr->GetMenuMgr()->RegisterHotKey(VK_ESCAPE,MENU_ID_SYSTEM);
@@ -178,7 +182,11 @@ uint32 CMenuSystem::OnCommand(uint32 nCommand, uint32 nParam1, uint32 nParam2)
 		}
 	case MC_EXIT:
 		{
+#ifdef _DEMO
+			g_pInterfaceMgr->ShowDemoScreens(LTTRUE);
+#else
             g_pLTClient->Shutdown();
+#endif
 			break;
 		}
 	default:
@@ -217,13 +225,14 @@ void CMenuSystem::OnFocus(LTBOOL bFocus)
 			m_pTeamCtrl->Show( IsTeamGameType() );
 			m_pHostCtrl->Show( !g_pClientMultiplayerMgr->IsConnectedToRemoteServer( ) );
 			m_pServerCtrl->Show(g_pClientMultiplayerMgr->IsConnectedToRemoteServer( ));
+			m_pServerIPCtrl->Show(g_pClientMultiplayerMgr->IsConnectedToRemoteServer( ));
 
 			if (g_pClientMultiplayerMgr->IsConnectedToRemoteServer( ))
 			{
 				std::string str = g_pClientMultiplayerMgr->GetStartGameRequest( ).m_HostInfo.m_sName;
-				str += " : ";
-				str += g_pClientMultiplayerMgr->GetStartGameRequest( ).m_TCPAddress;
 				m_pServerCtrl->SetString(str.c_str());
+				str = g_pClientMultiplayerMgr->GetStartGameRequest( ).m_TCPAddress;
+				m_pServerIPCtrl->SetString(str.c_str());
 			}
 
 
@@ -234,6 +243,7 @@ void CMenuSystem::OnFocus(LTBOOL bFocus)
 			m_pTeamCtrl->Show( LTFALSE );
 			m_pHostCtrl->Show( LTFALSE  );
 			m_pServerCtrl->Show( LTFALSE  );
+			m_pServerIPCtrl->Show( LTFALSE  );
 		}
 
 		if (m_fScale != g_pInterfaceResMgr->GetXRatio())

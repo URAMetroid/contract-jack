@@ -28,7 +28,7 @@ namespace
 }
 
 extern uint8 g_nCurTeam;
-
+extern bool g_bLAN;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -132,20 +132,31 @@ void    CScreenHostTDMOptions::OnFocus(LTBOOL bFocus)
 		
 	if (bFocus)
 	{
+		m_pMaxPlayers->Enable(!g_pPlayerMgr->IsPlayerInWorld());
+		if (g_bLAN)
+		{
+			m_pMaxPlayers->SetSliderRange(2, 16);
+		}
+		else
+		{
+			int nBandwidthMax = pProfile->m_ServerGameOptions.GetMaxPlayersForBandwidth();
+			if (nBandwidthMax > 2)
+			{
+				m_pMaxPlayers->SetSliderRange(2, nBandwidthMax);
+			}
+			else
+			{
+				m_pMaxPlayers->SetSliderRange(1, 2);
+				m_pMaxPlayers->Enable(LTFALSE);
+			}
+			m_nMaxPlayers = Min((int)pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_nMaxPlayers,nBandwidthMax);
+		}
 
-		m_nMaxPlayers = (int)pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_nMaxPlayers;
 		m_nRunSpeed = (int)pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_nRunSpeed;
 		m_nScoreLimit = (int)pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_nScoreLimit;
 		m_nTimeLimit = (int)pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_nTimeLimit;
 		m_nRounds = (int)pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_nRounds;
 		m_bFriendlyFire = pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_bFriendlyFire;
-
-//		m_nFragScore = (int)pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_nFragScore;
-/*
-		m_pTeam1Name->SetString(pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_sTeamName[0].c_str());
-		m_pTeam2Name->SetString(pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_sTeamName[1].c_str());
-*/
-		m_pMaxPlayers->Enable(!g_pPlayerMgr->IsPlayerInWorld());
 
 		m_bWeaponsStay = pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_bWeaponsStay;
 

@@ -328,6 +328,10 @@ bool ClientMultiplayerMgr::SetupClient(char const* pszHostName, char const* pszP
 	{
 		SAFE_STRCPY(m_StartGameRequest.m_HostInfo.m_sName ,pszHostName);
 	}
+	else
+	{
+		SAFE_STRCPY( m_StartGameRequest.m_HostInfo.m_sName, "" );
+	}
 
 	if (pszPassword)
 	{
@@ -425,6 +429,10 @@ bool ClientMultiplayerMgr::SetupServerHost( int nPort, bool bLANOnly )
 		break;
 	};
 
+	if (!m_ServerGameOptions.m_bLANOnly)
+	{
+		m_StartGameRequest.m_HostInfo.m_dwMaxConnections = Min(m_StartGameRequest.m_HostInfo.m_dwMaxConnections,(uint32)pProfile->m_ServerGameOptions.GetMaxPlayersForBandwidth());
+	}
 
 	m_StartGameRequest.m_HostInfo.m_bHasPassword = pProfile->m_ServerGameOptions.m_bUsePassword;
 	m_StartGameRequest.m_HostInfo.m_nGameType = (uint8)pProfile->m_ServerGameOptions.m_eGameType;
@@ -649,6 +657,11 @@ bool ClientMultiplayerMgr::HandleMsgHandshake( ILTMessage_Read & msg )
 
 				return true;
 			}
+
+			msg.ReadString( m_StartGameRequest.m_HostInfo.m_sName, ARRAY_LEN( m_StartGameRequest.m_HostInfo.m_sName ));
+			char szWorldName[MAX_PATH*2];
+			msg.ReadString( szWorldName, ARRAY_LEN( szWorldName ));
+			g_pMissionMgr->ClientHandshaking( szWorldName );
 
 			// Send back a hello response
 			CAutoMessage cResponse;
@@ -1205,6 +1218,7 @@ bool ClientMultiplayerMgr::UpdateNetClientData( )
 
 	if( szPlayerNameOverride[0] )
 	{
+		WriteConsoleString("playername"," ");
 		pProfile->m_sPlayerName = szPlayerNameOverride;
 	}
 

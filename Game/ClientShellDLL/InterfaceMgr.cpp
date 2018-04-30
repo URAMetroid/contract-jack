@@ -1463,9 +1463,11 @@ void CInterfaceMgr::EndSplashScreen()
 	LTStrCpy( szPublicServer, GetConsoleTempString( "publicserver", "1" ), ARRAY_LEN( szPublicServer ));
     bool bDoNatNegotiations = !!atoi( szPublicServer );
 
-	if( !szIP[0] || 
-		!g_pClientMultiplayerMgr->SetupClient( NULL, szPassword, bDoNatNegotiations, true, szIP, szIP ) || 
-		!g_pMissionMgr->StartGameAsClient( ))
+	bool bOk = !!g_pMissionButeMgr->Init( MISSION_DM_FILE );
+	bOk = bOk && !!( szIP[0] );
+	bOk = bOk && g_pClientMultiplayerMgr->SetupClient( NULL, szPassword, bDoNatNegotiations, true, szIP, szIP );
+	bOk = bOk && g_pMissionMgr->StartGameAsClient( );
+	if( !bOk )
 	{
 		// drop them into the join menu
 		LoadFailed( SCREEN_ID_MAIN );
@@ -6133,6 +6135,12 @@ void CInterfaceMgr::ConnectionFailed(uint32 nConnectionError)
 		else
 		{
 			eScreenToShow = bWasHosting ? SCREEN_ID_HOST : SCREEN_ID_JOIN;
+
+			//hack to rebuild our screen history
+			CScreenMgr* pScreenMgr = GetScreenMgr( );
+			pScreenMgr->ClearHistory();
+			pScreenMgr->AddScreenToHistory( SCREEN_ID_MAIN );
+			pScreenMgr->AddScreenToHistory( SCREEN_ID_MULTI );
 		}
 	}
 	else
@@ -6444,7 +6452,15 @@ bool CInterfaceMgr::HandleDisplayTimerMsg( ILTMessage_Read& msg )
 void CInterfaceMgr::LoadFailed(eScreenID eScreenToShow /*= SCREEN_ID_NONE*/, uint32 nLoadFailedMsgId /* = -1 */ )  
 {	
 	m_bLoadFailed = LTTRUE;
-	m_nLoadFailedMsgId = nLoadFailedMsgId;
+
+	if( nLoadFailedMsgId == -1 && g_pClientMultiplayerMgr->GetLastConnectionResult( ) == LT_REJECTED )
+	{
+		m_nLoadFailedMsgId = IDS_SERVERFULL;
+	}
+	else
+	{
+		m_nLoadFailedMsgId = nLoadFailedMsgId;
+	}
 
 	if (eScreenToShow == SCREEN_ID_NONE)
 	{
@@ -6499,7 +6515,7 @@ bool CInterfaceMgr::StartingNewGame( )
 	SkipPreLoad( false );
 
 	// Make sure we delete the browsers, since they can take up quite a bit of memory.
-	CScreenJoin *pScreenJoin= dynamic_cast< CScreenJoin * >( g_pInterfaceMgr->GetScreenMgr()->GetScreenFromID(SCREEN_ID_JOIN));
+	CScreenJoin *pScreenJoin= dynamic_cast< CScreenJoin * >( GetScreenMgr()->GetScreenFromID(SCREEN_ID_JOIN));
 	if( pScreenJoin )
 	{
 		pScreenJoin->TermServerLists( );

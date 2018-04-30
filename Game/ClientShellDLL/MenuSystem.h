@@ -36,6 +36,7 @@ private:
 	CLTGUITextCtrl*	m_pTeamCtrl;
 	CLTGUITextCtrl*	m_pHostCtrl;
 	CLTGUITextCtrl*	m_pServerCtrl;
+	CLTGUITextCtrl*	m_pServerIPCtrl;
 };
 
 #endif //!defined(_MENU_SYSTEM_H_)

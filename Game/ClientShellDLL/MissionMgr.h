@@ -54,19 +54,22 @@ class CMissionMgr
 		// Start perfromance test level
 		bool			StartPerformanceLevel();
 
+		// Handles a client getting handshaking info from server.
+		bool			ClientHandshaking( char const* pszWorldName );
+
 		// Call when mission was failed.
 		bool			HandleMissionFailed();
 
 		bool			IsCustomLevel()   const {return m_bCustomLevel;}
 		int				GetCurrentMission() const {return m_nCurrentMission;}
 		int				GetCurrentLevel()	const {return m_nCurrentLevel;}
-		char const*		GetCurrentWorldName() const	{ return m_sCurrentWorldName; }
+		char const*		GetCurrentWorldName() const	{ return m_sCurrentWorldName.c_str( ); }
 		bool			IsNewMission( ) const { return m_bNewMission; }
 		bool			IsRestoringLevel( ) const { return m_bRestoringLevel; }
 
 		int				GetNewMission() const {return m_nNewMission;}
 		int				GetNewLevel()	const {return m_nNewLevel;}
-		char const*		GetNewWorldName() const	{ return m_sNewWorldName; }
+		char const*		GetNewWorldName() const	{ return m_sNewWorldName.c_str( ); }
 
 		// Handles messages.
 		bool			OnMessage( uint8 messageID, ILTMessage_Read& msg );
@@ -117,6 +120,8 @@ class CMissionMgr
 		bool	FinishStartGameFromContinue( );
 		bool	FinishStartGameAsClient( );
 
+		// Sets our current world value.
+		bool SetCurrentWorld( char const* pszWorldName );
 
 		// Called when exit level is sent from server.
 		bool			HandleExitLevel( ILTMessage_Read& msg );
@@ -145,7 +150,7 @@ class CMissionMgr
 		bool			m_bCustomLevel;           // Is the current level a custom level
 		int				m_nCurrentMission;
 		int				m_nCurrentLevel;
-		CString			m_sCurrentWorldName;	// Current world that's running
+		std::string		m_sCurrentWorldName;	// Current world that's running
 
 		// True after receiving an EndGame message, cleared after leaving the mission summary screen
 		bool			m_bGameOver;
@@ -159,7 +164,7 @@ class CMissionMgr
 		// Used by FinishExitWorld to setup the loading state.
 		int				m_nNewMission;
 		int				m_nNewLevel;
-		CString			m_sNewWorldName;
+		std::string		m_sNewWorldName;
 
 		eStartGameState	m_eStartGameState;
 		int				m_nSaveSlot;

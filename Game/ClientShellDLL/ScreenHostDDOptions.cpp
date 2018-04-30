@@ -28,6 +28,7 @@ namespace
 }
 
 uint8 g_nCurTeam = 0;
+extern bool g_bLAN;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -155,7 +156,27 @@ void    CScreenHostDDOptions::OnFocus(LTBOOL bFocus)
 		
 	if (bFocus)
 	{
-		m_nMaxPlayers = (int)pProfile->m_ServerGameOptions.GetDoomsday().m_nMaxPlayers;
+		m_pMaxPlayers->Enable(!g_pPlayerMgr->IsPlayerInWorld());
+		if (g_bLAN)
+		{
+			m_pMaxPlayers->SetSliderRange(2, 16);
+		}
+		else
+		{
+			int nBandwidthMax = pProfile->m_ServerGameOptions.GetMaxPlayersForBandwidth();
+			if (nBandwidthMax > 2)
+			{
+				m_pMaxPlayers->SetSliderRange(2, nBandwidthMax);
+			}
+			else
+			{
+				m_pMaxPlayers->SetSliderRange(1, 2);
+				m_pMaxPlayers->Enable(LTFALSE);
+			}
+			
+			m_nMaxPlayers = Min((int)pProfile->m_ServerGameOptions.GetDoomsday().m_nMaxPlayers,nBandwidthMax);
+		}
+
 		m_nRunSpeed = (int)pProfile->m_ServerGameOptions.GetDoomsday().m_nRunSpeed;
 		m_nTimeLimit = (int)pProfile->m_ServerGameOptions.GetDoomsday().m_nTimeLimit;
 		m_nRounds = (int)pProfile->m_ServerGameOptions.GetDoomsday().m_nRounds;
@@ -167,11 +188,7 @@ void    CScreenHostDDOptions::OnFocus(LTBOOL bFocus)
 		m_nHeavyPiecePlacedScore = (int)pProfile->m_ServerGameOptions.GetDoomsday().m_nHeavyPiecePlacedScore;
 		m_nLightPiecePlacedScore = (int)pProfile->m_ServerGameOptions.GetDoomsday().m_nLightPiecePlacedScore;
 		m_nPieceRemovedScore = (int)pProfile->m_ServerGameOptions.GetDoomsday().m_nPieceRemovedScore;
-/*
-		m_pTeam1Name->SetString(pProfile->m_ServerGameOptions.GetDoomsday().m_sTeamName[0].c_str());
-		m_pTeam2Name->SetString(pProfile->m_ServerGameOptions.GetDoomsday().m_sTeamName[1].c_str());
-*/
-		m_pMaxPlayers->Enable(!g_pPlayerMgr->IsPlayerInWorld());
+		
 
 		m_bWeaponsStay = pProfile->m_ServerGameOptions.GetDoomsday().m_bWeaponsStay;
 

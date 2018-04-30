@@ -56,6 +56,7 @@
 #include "ScmdConsoleDriver_CShell.h"
 #include "mmsystem.h"
 #include <shellapi.h>
+#include <direct.h>
 
 #ifdef STRICT
 	WNDPROC g_pfnMainWndProc = NULL;
@@ -1264,10 +1265,6 @@ uint32 CGameClientShell::OnEngineInitialized(RMode *pMode, LTGUID *pAppGuid)
 #endif // _DEMO
 
 
-	// Determine how long it took to initialize the game...
-	sprintf(strTimeDiff, "Game initialized in %f seconds.\n", CWinUtil::GetTime() - fStartTime);
-	CWinUtil::DebugOut(strTimeDiff);
-
 	m_pPerformanceTest = debug_new(CPerformanceTest);
 
 	// Intialize the scmd handler.
@@ -1276,6 +1273,13 @@ uint32 CGameClientShell::OnEngineInitialized(RMode *pMode, LTGUID *pAppGuid)
 	{
 		return LT_ERROR;
 	}
+
+	//force construction of DM mission file
+	CreateMPMissionFile();
+
+	// Determine how long it took to initialize the game...
+	sprintf(strTimeDiff, "Game initialized in %f seconds.\n", CWinUtil::GetTime() - fStartTime);
+	CWinUtil::DebugOut(strTimeDiff);
 
 	return LT_OK;
 }
@@ -2162,6 +2166,8 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 		if (GS_SCREEN == eGameState && SCREEN_ID_POSTLOAD == g_pInterfaceMgr->GetScreenMgr()->GetCurrentScreenID() )
 			return;
 
+		if (g_pInterfaceMgr->IsMessageBoxVisible())
+			return;
 
 		// Check if we can do a load.
 		if( g_pClientSaveLoadMgr->CanLoadGame( ) && g_pClientSaveLoadMgr->QuickSaveExists( ))
@@ -2177,17 +2183,6 @@ void CGameClientShell::OnKeyDown(int key, int rep)
 			}
 			else
 			{
-				//if mission bute mgr is not initialized
-				if (!g_pMissionButeMgr->GetAttributeFile( ) || !strlen(g_pMissionButeMgr->GetAttributeFile( )))
-				{
-					// Initialize to the sp mission bute.
-					if( !g_pMissionButeMgr->Init( MISSION_DEFAULT_FILE ))
-					{
-						g_pLTClient->ShutdownWithMessage("Could not load mission bute %s.", MISSION_DEFAULT_FILE );
-						return;
-  					}
-				}
-
 				g_pMissionMgr->StartGameFromQuickSave( );
 			}
 		}
@@ -5104,4 +5099,253 @@ bool CGameClientShell::LaunchFromString( char const* pszFile, char const* pszPar
 	g_pLTClient->Shutdown();
 
 	return true;
+}
+
+
+
+//local butemgr for use reading MP mission configurations
+class CMPButeMgr : public CGameButeMgr
+{
+	public :
+        virtual LTBOOL	Init(const char* szAttributeFile);
+		CButeMgr*	GetButeMgr() {return &m_buteMgr;}
+};
+// ----------------------------------------------------------------------- //
+//
+//	ROUTINE:	CMPButeMgr::Init
+//
+//	PURPOSE:	Initialization
+//
+// ----------------------------------------------------------------------- //
+LTBOOL CMPButeMgr::Init(const char* szAttributeFile)
+{
+    if(!szAttributeFile) return LTFALSE;
+
+	// See if we already have this attribute file loaded.
+	if( m_strAttributeFile.GetLength( ) && m_strAttributeFile.CompareNoCase( szAttributeFile ) == 0 )
+		return LTTRUE;
+    
+	// Start fresh.
+	Term( );
+
+    ILTStream* pDStream = LTNULL;
+    LTRESULT dr = g_pLTBase->OpenFile(szAttributeFile, &pDStream);
+    bool bFound = (dr == LT_OK && pDStream);
+	if (pDStream)
+		pDStream->Release();
+
+
+	if (!bFound || !Parse(szAttributeFile)) 
+		return LTFALSE;
+
+	return LTTRUE;
+};
+
+
+// --------------------------------------------------------------------------- //
+//
+//	ROUTINE:	CGameClientShell::CreateMPMissionFile
+//
+//	PURPOSE:	Creates the mpmission file dynamically.
+//
+// --------------------------------------------------------------------------- //
+
+void CGameClientShell::CreateMPMissionFile()
+{
+	char path[256];
+	std::string sFN = _getcwd(path,sizeof(path));
+	sFN += "\\";
+	sFN += MISSION_DM_FILE;
+
+	if (CWinUtil::FileExist(sFN.c_str()))
+	{
+		remove(MISSION_DM_FILE);
+	}
+
+	StringSet filenames;
+
+#if !defined( _MPDEMO ) && !defined( _PRDEMO )
+
+	// Get a list of world names and sort them alphabetically
+
+	uint8 nNumPaths = g_pClientButeMgr->GetNumMultiWorldPaths();
+
+	char pathBuf[128];
+	FileEntry** pFilesArray = debug_newa(FileEntry*, nNumPaths);
+
+	if (pFilesArray)
+	{
+		for (int i=0; i < nNumPaths; ++i)
+		{
+			pathBuf[0] = '\0';
+			g_pClientButeMgr->GetWorldPath(i, pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
+
+			if (pathBuf[0])
+			{
+				pFilesArray[i] = g_pLTClient->GetFileList(pathBuf);
+			}
+			else
+			{
+				pFilesArray[i] = LTNULL;
+			}
+		}
+	}
+
+	
+	char strBaseName[256];
+	char* pBaseName = NULL;
+	char* pBaseExt = NULL;
+
+	for (int i=0; i < nNumPaths; ++i)
+	{
+		pathBuf[0] = '\0';
+		g_pClientButeMgr->GetWorldPath(i, pathBuf, ARRAY_LEN(pathBuf),LTFALSE);
+
+		if (pathBuf[0] && pFilesArray[i])
+		{
+			sprintf(path, "%s\\", pathBuf);
+			FileEntry* ptr = pFilesArray[i];
+
+			while (ptr)
+			{
+				if (ptr->m_Type == TYPE_FILE)
+				{
+					if (strnicmp(ptr->m_pBaseFilename,"DM_",3) == 0 || 
+						strnicmp(ptr->m_pBaseFilename,"DE_",3) == 0 || 
+						strnicmp(ptr->m_pBaseFilename,"DD_",3) == 0)
+					{
+						SAFE_STRCPY(strBaseName, ptr->m_pBaseFilename);
+						pBaseName = strtok (strBaseName, ".");
+						pBaseExt = strtok (NULL, "\0");
+						if (pBaseExt && stricmp (pBaseExt, "dat") == 0)
+						{
+							char szString[512];
+							sprintf(szString, "%s%s", path, pBaseName);
+
+							// add this to the array
+							filenames.insert(szString);
+						}
+					}
+				}
+
+				ptr = ptr->m_pNext;
+			}
+
+			g_pLTClient->FreeFileList(pFilesArray[i]);
+		}
+	}
+
+	debug_deletea(pFilesArray);
+
+#else // !defined( _MPDEMO ) && !defined( _PRDEMO )
+
+	// add this to the array
+	filenames.insert( "worlds\\retailmultiplayer\\DE_Italy" );
+	filenames.insert( "worlds\\retailmultiplayer\\DE_Ruins" );
+
+#endif // !defined( _MPDEMO ) && !defined( _PRDEMO )
+
+	int index = 0;
+	char szLabel[256];
+	StringSet::iterator iter = filenames.begin();
+
+	CMPButeMgr buteMgr;
+	char szTmp[16];
+	char szString[512];
+	char szDefWeapon[512] = "";
+
+	while (iter != filenames.end())
+	{
+		bool bDefaultWeapons = false;
+		bool bSelectedWeapon = false;
+		szDefWeapon[0] = '\0';
+
+		sprintf(szLabel,"Mission%d",index);
+							
+		sprintf(szString, "\"%s\"", (*iter).c_str());
+		CWinUtil::WinWritePrivateProfileString( szLabel, "Level0", szString, sFN.c_str());
+
+		std::string sCfg = (*iter);
+		sCfg += ".cfg";
+
+		if (buteMgr.Init(sCfg.c_str()))
+		{
+			MISSION mission;
+			mission.Init(*buteMgr.GetButeMgr(),"Mission");
+
+			if (mission.nNameId > 0)
+			{
+				sprintf(szTmp,"%d",mission.nNameId);
+				CWinUtil::WinWritePrivateProfileString( szLabel, "NameId", szTmp, sFN.c_str());
+			}
+
+			if (!mission.sName.empty())
+			{
+				sprintf(szString, "\"%s\"", mission.sName.c_str());
+				CWinUtil::WinWritePrivateProfileString( szLabel, "NameStr", szString, sFN.c_str());
+			}
+
+			if (!mission.sPhoto.empty())
+			{
+				sprintf(szString, "\"%s\"", mission.sPhoto.c_str());
+				CWinUtil::WinWritePrivateProfileString( szLabel, "Photo", szString, sFN.c_str());
+			}
+
+			if (mission.nNumDefaultWeapons)
+			{
+				bDefaultWeapons = true;
+				std::string sDef = "\"";
+				for (int w = 0; w < mission.nNumDefaultWeapons; w++)
+				{
+					if (w > 0)
+						sDef += ",";
+					LTStrCpy(szDefWeapon,g_pWeaponMgr->GetWeapon(mission.aDefaultWeapons[w])->szName,sizeof(szDefWeapon));
+					sDef += szDefWeapon;
+				}
+				sDef += "\"";
+				CWinUtil::WinWritePrivateProfileString( szLabel, "DefaultWeapons", sDef.c_str(), sFN.c_str());
+			}
+
+			if (mission.nSelectedWeapon != WMGR_INVALID_ID)
+			{
+				bSelectedWeapon = true;
+				WEAPON const* pWpn = g_pWeaponMgr->GetWeapon(mission.nSelectedWeapon);
+				sprintf(szTmp,"%d",pWpn->szName);
+				CWinUtil::WinWritePrivateProfileString( szLabel, "SelectedWeapon", pWpn->szName, sFN.c_str());
+			}
+
+			buteMgr.Term();
+		}
+
+		if (!bDefaultWeapons)
+		{
+			sprintf(szString, "\"%s\"", g_pWeaponMgr->GetMPDefaultWeapons());
+			CWinUtil::WinWritePrivateProfileString( szLabel, "DefaultWeapons", szString, sFN.c_str());
+		}
+
+		if (!bSelectedWeapon)
+		{
+			if (strlen(szDefWeapon))
+			{
+				sprintf(szString, "\"%s\"", szDefWeapon);
+			}
+			else
+			{
+				sprintf(szString, "\"%s\"", g_pWeaponMgr->GetMPSelectedWeapon());
+			}
+			CWinUtil::WinWritePrivateProfileString( szLabel, "SelectedWeapon", szString, sFN.c_str());
+		}
+
+		++index;
+		iter++;
+	}
+
+	
+	// Flush the file. (if anything was added)
+	if (index > 0)
+	{
+		CWinUtil::WinWritePrivateProfileString( NULL, NULL, NULL, sFN.c_str());
+	}
+
+	filenames.clear();
 }

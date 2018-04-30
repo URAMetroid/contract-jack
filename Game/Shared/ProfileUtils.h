@@ -225,6 +225,7 @@ class ServerGameOptions
 		
 		uint8		GetMaxPlayers() const;
 		int			GetGameTypeStringID() const;
+		uint8		GetMaxPlayersForBandwidth() const;
 
 		// Unsaved data.
 		std::string		m_sProfileName;

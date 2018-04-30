@@ -500,6 +500,8 @@ CGameServerShell::CGameServerShell() :
 	// Note : ctor stuff is now all handled by ::OnServerInitialized
 
 	m_pServerMissionMgr = NULL;
+
+	m_nBadClientCheckPeriod = GetTickCount( );
 }
 
 
@@ -669,6 +671,7 @@ void CGameServerShell::OnAddClient(HCLIENT hClient)
 		if( !g_pLTServer->GetClientData( hClient, ( uint8* )&ncd, nNcdSize ) || nNcdSize != sizeof( NetClientData ))
 		{
 			g_pLTServer->KickClient( hClient );
+			ClientSelfBoot( *pClientData );
 			return;
 		}
 
@@ -681,6 +684,7 @@ void CGameServerShell::OnAddClient(HCLIENT hClient)
 			ePlayerModelId >= g_pModelButeMgr->GetNumModels( ))
 		{
 			g_pLTServer->KickClient( hClient );
+			ClientSelfBoot( *pClientData );
 			return;
 		}
 
@@ -709,6 +713,8 @@ void CGameServerShell::OnAddClient(HCLIENT hClient)
 		cMsg.Writeuint8(MID_HANDSHAKE);
 		cMsg.Writeuint8(MID_HANDSHAKE_HELLO);
 		cMsg.Writeuint16(GAME_HANDSHAKE_VER);
+		cMsg.WriteString(m_ServerGameOptions.GetSessionName( ));
+		cMsg.WriteString(GetCurLevel( ));
 		g_pLTServer->SendToClient(cMsg.Read(), hClient, MESSAGE_GUARANTEED);
 	}
 	else
@@ -719,7 +725,7 @@ void CGameServerShell::OnAddClient(HCLIENT hClient)
 	}
 
 	// Reset badclient check timer to allow this client to get settled.
-	m_tmrBadClientCheckPeriod.Start( 5.0f );
+	m_nBadClientCheckPeriod = GetTickCount( );
 }
 
 // ----------------------------------------------------------------------- //
@@ -4365,12 +4371,12 @@ bool CGameServerShell::UpdateClientsWaitingForAuth( )
 bool CGameServerShell::KickBadClients( )
 {
 	// See if it's time to check for bad clients.
-	if( !m_tmrBadClientCheckPeriod.Stopped( ))
+	if( GetTickCount( ) - m_nBadClientCheckPeriod < 5.0f )
 	{
 		return true;
 	}
 
-	m_tmrBadClientCheckPeriod.Start( 5.0f );
+	m_nBadClientCheckPeriod = GetTickCount( );
 
 	// Check if client was previously kicked and is still sticking around.
 	// Check if any client has not talked to us in a very long time.  If so, it may
@@ -6006,5 +6012,5 @@ void CGameServerShell::ClientSelfBoot( ClientData& clientData )
 {
 	clientData.m_bWasKicked = true;
 	// Reset our bad client check so it gives the client message time to get sent out.
-	m_tmrBadClientCheckPeriod.Start( 5.0f );
+	m_nBadClientCheckPeriod = GetTickCount( );
 }

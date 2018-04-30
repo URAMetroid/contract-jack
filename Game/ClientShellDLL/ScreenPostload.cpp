@@ -114,7 +114,11 @@ void CScreenPostload::OnFocus(LTBOOL bFocus)
 
 			if( pMission )
 			{
-				m_missionname = LoadTempString(pMission->nNameId);
+				if (pMission->nNameId > 0)
+					m_missionname = LoadTempString(pMission->nNameId);
+				else
+					m_missionname = pMission->sName;
+
 				int nCurLevel = g_pMissionMgr->GetCurrentLevel( );
 				m_levelname = LoadTempString( pMission->aLevels[nCurLevel].nNameId );
 				m_layout = pMission->szLayout;

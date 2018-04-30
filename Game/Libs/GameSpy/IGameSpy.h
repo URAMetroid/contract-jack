@@ -224,7 +224,7 @@ public:
 	// Complete when GetBrowsingStatus returns EBrowserStatus_Complete.
 	// Callback is called for each server found.
 	// pUserData is sent as parameter in the callback call.
-	virtual bool RequestServerDetails( char const* pszAddress, uint16 nPort, ServerInfoCallback cbServerInfo, void* pUserData ) = 0;
+	virtual bool RequestServerDetails( char const* pszAddress, uint16 nPort, bool bDirectConnection, ServerInfoCallback cbServerInfo, void* pUserData ) = 0;
 	// Requests NAT negotiations with server pszAddress:nPort on socket hSocket.
 	virtual bool RequestNatNegotiation( SOCKET hSocket, char const* pszAddress, uint16 nPort ) = 0;
 	// Stops all requests.

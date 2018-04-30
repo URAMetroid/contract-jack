@@ -80,8 +80,8 @@ bool CMissionMgr::Init()
     m_nNewMission = -1;
     m_nNewLevel = -1;
 
-	m_sCurrentWorldName.Empty( );
-	m_sNewWorldName.Empty( );
+	m_sCurrentWorldName = "";
+	m_sNewWorldName = "";
 
 	return true;
 }
@@ -166,6 +166,7 @@ bool CMissionMgr::StartGameFromLevel( char const* pszFilename )
 	m_bRestoringLevel = false;
 	m_bServerWaiting = true;
 	ClearMissionInfo( );
+	m_sCurrentWorldName = "";
 
 	m_eStartGameState = eStartGameFromLevel;
 	// Set our new level name.
@@ -189,6 +190,7 @@ bool CMissionMgr::StartPerformanceLevel()
 	m_bRestoringLevel = false;
 	m_bServerWaiting = true;
 	ClearMissionInfo( );
+	m_sCurrentWorldName = "";
 
 	// Starting new game.
 	g_pInterfaceMgr->StartingNewGame( );
@@ -223,7 +225,7 @@ bool CMissionMgr::FinishStartGameFromLevel()
 	// Tell the server to start with this level.
 	CAutoMessage cMsg;
 	cMsg.Writeuint8( MID_START_LEVEL );
-	cMsg.WriteString( m_sCurrentWorldName );
+	cMsg.WriteString( m_sCurrentWorldName.c_str());
 	g_pLTClient->SendToServer( cMsg.Read(), MESSAGE_GUARANTEED );
 
 	return true;
@@ -238,6 +240,18 @@ bool CMissionMgr::FinishStartGameFromLevel()
 // ----------------------------------------------------------------------- //
 bool CMissionMgr::StartGameFromQuickSave( )
 {
+
+	//make sure mission bute mgr is initialized to the single player butes
+	const char* pBute = g_pMissionButeMgr->GetAttributeFile( );
+	if (!pBute ||  (stricmp(pBute,MISSION_DEFAULT_FILE)!=0) )
+	{
+		// Initialize to the sp mission bute.
+		if( !g_pMissionButeMgr->Init( MISSION_DEFAULT_FILE ))
+		{
+			return false;
+		}
+	}
+
 	// Check if there was a save available.
 	if( !g_pClientSaveLoadMgr->QuickSaveExists( ))
 		return false;
@@ -256,6 +270,7 @@ bool CMissionMgr::StartGameFromQuickSave( )
 	m_bRestoringLevel = false;
 	m_bServerWaiting = true;
 	ClearMissionInfo( );
+	m_sCurrentWorldName = "";
 
 	bool bOk = true;
 
@@ -326,6 +341,7 @@ bool CMissionMgr::StartGameFromSaveSlot( int nSlot )
 	m_bRestoringLevel = false;
 	m_bServerWaiting = true;
 	ClearMissionInfo( );
+	m_sCurrentWorldName = "";
 
 	bool bOk = true;
 
@@ -396,6 +412,7 @@ bool CMissionMgr::StartGameFromReload( )
 	m_bRestoringLevel = false;
 	m_bServerWaiting = true;
 	ClearMissionInfo( );
+	m_sCurrentWorldName = "";
 
 	bool bOk = true;
 
@@ -465,6 +482,7 @@ bool CMissionMgr::StartGameFromCheckpointSave( )
 	m_bRestoringLevel = false;
 	m_bServerWaiting = true;
 	ClearMissionInfo( );
+	m_sCurrentWorldName = "";
 
 	bool bOk = true;
 
@@ -539,6 +557,7 @@ bool CMissionMgr::StartGameFromContinue( )
 	m_bRestoringLevel = false;
 	m_bServerWaiting = true;
 	ClearMissionInfo( );
+	m_sCurrentWorldName = "";
 
 	bool bOk = true;
 
@@ -593,6 +612,7 @@ bool CMissionMgr::StartGameAsClient( )
 	m_bRestoringLevel = false;
 	m_bServerWaiting = true;
 	ClearMissionInfo( );
+	m_sCurrentWorldName = "";
 
 	// Starting new game.
 	g_pInterfaceMgr->StartingNewGame( );
@@ -685,8 +705,9 @@ bool CMissionMgr::HandleExitLevel( ILTMessage_Read& msg  )
 		}
 	}
 
-	msg.ReadString( m_sNewWorldName.GetBuffer( MAX_PATH ), MAX_PATH );
-	m_sNewWorldName.ReleaseBuffer( );
+	char szNewWorldName[MAX_PATH*2];
+	msg.ReadString( szNewWorldName, ARRAY_LEN( szNewWorldName ));
+	m_sNewWorldName = szNewWorldName;
 	m_bExitingMission = msg.Readbool( );
 	m_bRestoringLevel = msg.Readbool( );
 	m_bServerWaiting  = msg.Readbool( );
@@ -694,7 +715,7 @@ bool CMissionMgr::HandleExitLevel( ILTMessage_Read& msg  )
 	int nMissionId, nLevel;
 
 	// Check if this is a valid mission level.
-	if (g_pMissionButeMgr->IsMissionLevel( m_sNewWorldName, nMissionId, nLevel))
+	if (g_pMissionButeMgr->IsMissionLevel( m_sNewWorldName.c_str( ), nMissionId, nLevel))
 	{
 		m_nNewMission = nMissionId;
 		m_nNewLevel = nLevel;
@@ -719,7 +740,7 @@ bool CMissionMgr::HandleExitLevel( ILTMessage_Read& msg  )
 	m_bNewMission = m_bExitingMission;
 
 	// Check if we didn't get a new world.
-	if( m_sNewWorldName.IsEmpty( ))
+	if( m_sNewWorldName.length( ) == 0 )
 	{
 		// Just go back to the main menu.
 		g_pInterfaceMgr->ChangeState( GS_SCREEN );
@@ -819,7 +840,7 @@ bool CMissionMgr::FinishExitLevel( )
 	}
 
 	// Set our new level information.
-	if( !SetNewLevel( m_sNewWorldName ))
+	if( !SetNewLevel( m_sNewWorldName.c_str( )))
 	{
 		g_pInterfaceMgr->LoadFailed( );
 		return false;
@@ -888,43 +909,12 @@ bool CMissionMgr::SetNewLevel( char const* pszWorldName )
 		return false;
 	}
 
-	m_sCurrentWorldName = pszWorldName;
-
-	// See if the loaded world is a custom level or not...
-
-	int nMissionId, nLevel;
-
-	// Check if this is a valid mission level.
-	if (g_pMissionButeMgr->IsMissionLevel( pszWorldName, nMissionId, nLevel))
-	{
-		// Check if we're switching missions.
-		if( m_bNewMission )
-		{
-			// Starting new mission.
-			ClearMissionInfo( );
-		}
-
-		m_nCurrentMission	= nMissionId;
-		m_nCurrentLevel		= nLevel;
-		m_nNewMission	= nMissionId;
-		m_nNewLevel		= nLevel;
-        m_bCustomLevel    = false;
-	}
-	// This is a custom level.
-	else
-	{
-        m_bCustomLevel = true;
-		m_nCurrentMission = -1;
-		m_nCurrentLevel = -1;
-		m_bNewMission = true;
-		m_nNewMission = -1;
-		m_nNewLevel = -1;
-	}
+	if( !SetCurrentWorld( pszWorldName ))
+		return false;
 
 	// Go to the loading state.
 	if( !SetLoadingLevel( ))
 		return false;
-
 
 	return true;
 }
@@ -952,6 +942,9 @@ bool CMissionMgr::SetLoadingLevel( )
 
 	// Clear the disconnect flags.
 	g_pInterfaceMgr->SetIntentionalDisconnect( false );
+
+	// Not exiting level.
+	m_bExitingLevel = false;
 
 	if (GS_LOADINGLEVEL == g_pInterfaceMgr->GetGameState())
 	{
@@ -1037,10 +1030,6 @@ bool CMissionMgr::PreLoadWorld( char const* pszNewWorldName )
 	SAFE_STRCPY(szTmp,pszNewWorldName);
 	strtok(szTmp,".");
 
-	// Check if we already set ourselves up for this world.
-//	if( !m_sCurrentWorldName.IsEmpty( ) && m_sCurrentWorldName.CompareNoCase( szTmp ) == 0 )
-//		return true;
-
 	// If we just joined a remote server, this is the first time we
 	// know the new world name.
 	if( !SetNewLevel( szTmp ))
@@ -1094,3 +1083,87 @@ bool CMissionMgr::SendStartGameMessage( )
 	
 	return true;
 }
+
+
+// --------------------------------------------------------------------------- //
+//
+//	ROUTINE:	CMissionMgr::ClientHandshaking
+//
+//	PURPOSE:	Handles a client getting handshaking info from server.
+//
+// --------------------------------------------------------------------------- //
+
+bool CMissionMgr::ClientHandshaking( char const* pszWorldName )
+{
+	if( pszWorldName )
+	{
+		if( !SetCurrentWorld( pszWorldName ))
+			return false;
+	}
+
+	if (GS_LOADINGLEVEL == g_pInterfaceMgr->GetGameState())
+	{
+		g_pInterfaceMgr->UpdateLoadScreenInfo();
+	}
+
+	return true;
+}
+
+// --------------------------------------------------------------------------- //
+//
+//	ROUTINE:	CMissionMgr::SetCurrentWorld
+//
+//	PURPOSE:	Sets our current world value.
+//
+// --------------------------------------------------------------------------- //
+
+bool CMissionMgr::SetCurrentWorld( char const* pszWorldName )
+{
+	// Check inputs.
+	if( !pszWorldName || !pszWorldName[0] )
+	{
+		ASSERT( !"CMissionMgr::SetNewLevel:  Invalid world name." );
+		return false;
+	}
+
+	m_sCurrentWorldName = pszWorldName;
+
+	// See if the loaded world is a custom level or not...
+
+	int nMissionId, nLevel;
+
+	// Check if this is a valid mission level.
+	if (g_pMissionButeMgr->IsMissionLevel( pszWorldName, nMissionId, nLevel))
+	{
+		// Check if this is a valid mission level.
+		if( !IsCustomLevel( ))
+		{
+			// Check if we're switching missions.
+			if( m_bNewMission )
+			{
+				// Starting new mission.
+				ClearMissionInfo( );
+			}
+		}
+
+		m_nCurrentMission	= nMissionId;
+		m_nCurrentLevel		= nLevel;
+		m_nNewMission	= nMissionId;
+		m_nNewLevel		= nLevel;
+        m_bCustomLevel    = false;
+	}
+	// This is a custom level.
+	else
+	{
+        m_bCustomLevel = true;
+		m_nCurrentMission = -1;
+		m_nCurrentLevel = -1;
+		m_bNewMission = true;
+		m_nNewMission = -1;
+		m_nNewLevel = -1;
+	}
+
+	return true;
+}
+
+

@@ -1461,7 +1461,7 @@ bool ScmdConsoleCommandHandler_ListGameOptions::Receive( ScmdCommandStatus eScmd
 
 				case eGameTypeDemolition:
 				{
-					ScmdConsole::Instance( ).GetScmdConsoleDriver( ).WriteStringResId( IDS_TEAMDEATHMATCH );
+					ScmdConsole::Instance( ).GetScmdConsoleDriver( ).WriteStringResId( IDS_DEMOLITION );
 
 					uint32 nIndex = 0;
 					WriteOutGameOption( nIndex++, "%d", IDS_RUN_SPEED, msg.Readuint8( ));

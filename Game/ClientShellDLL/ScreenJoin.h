@@ -195,6 +195,9 @@ protected:
 	EUpdateDirState m_eUpdateDirState;
 
 	CWinSync_CS m_csAddServer;
+
+	// Will browse internet servers.
+	bool	m_bBrowseInternet;
 };
 
 #endif // _SCREEN_MULTI_H_

@@ -5,6 +5,7 @@
 #include "ModelButeMgr.h"
 #include "CommonUtilities.h"
 #include "ResShared.h"
+#include "Globals.h"
 #ifdef _CLIENTBUILD
 #include "ClientUtilities.h"
 #include "clientres.h"
@@ -279,6 +280,23 @@ uint8 ServerGameOptions::GetMaxPlayers() const
 	return GetCurrentGameOptions_const( ).m_nMaxPlayers;
 }
 
+uint8 ServerGameOptions::GetMaxPlayersForBandwidth() const
+{
+	uint16 nBandwidth = 0;
+	if ( m_nBandwidthServer >= eBandwidth_Custom )
+	{
+		nBandwidth = m_nBandwidthServerCustom;
+	}
+	else
+	{
+		nBandwidth = g_BandwidthServer[m_nBandwidthServer];
+	}
+
+	uint16 nMaxPlayers = Clamp( (nBandwidth / 32),2,16);
+	return (uint8)nMaxPlayers;
+
+}
+
 int ServerGameOptions::GetGameTypeStringID() const
 {
 	switch (m_eGameType)
@@ -334,7 +352,7 @@ void BaseGameOptions::Clear( )
 	m_sSessionName = "";
 	m_sCampaignName = DEFAULT_CAMPAIGN;
 
-	m_nMaxPlayers = 16;
+	m_nMaxPlayers = 8;
 	m_nRunSpeed = 130;
 	m_nScoreLimit = 50;
 	m_nTimeLimit = 10;
@@ -548,7 +566,7 @@ void TeamDMGameOptions::Clear( )
 {
 	BaseGameOptions::Clear( );
 
-	m_nMaxPlayers = 16;
+	m_nMaxPlayers = 8;
 	m_nRunSpeed = 130;
 	m_nScoreLimit = 50;
 	m_nTimeLimit = 10;
@@ -594,7 +612,7 @@ void DemolitionGameOptions::Clear( )
 {
 	BaseGameOptions::Clear( );
 
-	m_nMaxPlayers = 16;
+	m_nMaxPlayers = 8;
 	m_nRunSpeed = 130;
 	m_nRounds = 2;
 	m_bFriendlyFire = true;
@@ -636,7 +654,7 @@ void DoomsdayGameOptions::Clear( )
 {
 	BaseGameOptions::Clear( );
 
-	m_nMaxPlayers = 16;
+	m_nMaxPlayers = 8;
 	m_nRunSpeed = 130;
 	m_nTimeLimit = 20;
 	m_nRounds = 1;

@@ -101,10 +101,6 @@ LTBOOL CScreenMain::Build()
 	}
 	pCtrl->SetBasePos(pos);
 
-	//Build multiplayer screen to force construction of DM mission file
-	CScreenMulti *pMulti = (CScreenMulti *)m_pScreenMgr->GetScreenFromID(SCREEN_ID_MULTI);
-	pMulti->Build();
-
 	// Make sure to call the base class
 	if (!CBaseScreen::Build()) return LTFALSE;
 

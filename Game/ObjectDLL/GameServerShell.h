@@ -490,7 +490,7 @@ class CGameServerShell : public IServerShellStub
 		typedef std::vector< ClientData* > ClientDataList;
 		ClientDataList	m_ClientDataList;
 
-		CTimer	m_tmrBadClientCheckPeriod;
+		uint32			m_nBadClientCheckPeriod;
 };
 
 extern class CGameServerShell* g_pGameServerShell;

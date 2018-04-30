@@ -117,6 +117,7 @@ LTBOOL CScreenHost::Build()
 {
 	int kColumn0 = g_pLayoutMgr->GetScreenCustomInt(SCREEN_ID_HOST,"ColumnWidth");
 	int kColumn1 = (640 - GetPageLeft()) - kColumn0;
+	int kColumn2 = kColumn0 / 2;
 
 	CreateTitle(IDS_TITLE_HOST);
 
@@ -171,7 +172,8 @@ LTBOOL CScreenHost::Build()
 
 	m_pBandwidth = AddColumnCtrl(CMD_EDIT_BANDWIDTH, IDS_HELP_BANDWIDTH_EDIT);
 	m_pBandwidth->AddColumn(LoadTempString(IDS_BANDWIDTH_EDIT), kColumn0);
-	m_pBandwidth->AddColumn("<bandwidth>", kColumn1, LTTRUE);
+	m_pBandwidth->AddColumn("<bandwidth>", kColumn2, LTTRUE);
+	m_pBandwidth->AddColumn("<maxplayers>", kColumn0, LTTRUE);
 
 
 	AddTextItem(IDS_OPTIONS, CMD_OPTIONS, IDS_HELP_HOST_OPTIONS);
@@ -403,8 +405,7 @@ void    CScreenHost::OnFocus(LTBOOL bFocus)
 
 		m_pWeapons->Show(!IsCoopMultiplayerGameType( ));
 
-		if (!m_bLan)
-			UpdateBandwidth();
+		UpdateBandwidth(false);
 
         UpdateData(LTFALSE);
 
@@ -438,7 +439,7 @@ LTBOOL CScreenHost::OnLeft()
 			--m_nBandwidth;
 			
 		m_pBandwidthCycle->SetSelIndex(m_nBandwidth);
-		UpdateBandwidth();
+		UpdateBandwidth(true);
         return LTTRUE;
 	}
 	return CBaseScreen::OnLeft();
@@ -454,7 +455,7 @@ LTBOOL CScreenHost::OnRight()
 		if (m_nBandwidth >= eBandwidth_Custom)
 			m_nBandwidth = 0;
 		m_pBandwidthCycle->SetSelIndex(m_nBandwidth);
-		UpdateBandwidth();
+		UpdateBandwidth(true);
         return LTTRUE;
 	}
 	return CBaseScreen::OnRight();
@@ -471,7 +472,7 @@ LTBOOL CScreenHost::OnLButtonUp(int x, int y)
 		if (m_nBandwidth >= eBandwidth_Custom)
 			m_nBandwidth = 0;
 		m_pBandwidthCycle->SetSelIndex(m_nBandwidth);
-		UpdateBandwidth();
+		UpdateBandwidth(true);
         return LTTRUE;
 	}
 	return CBaseScreen::OnLButtonUp(x,y);
@@ -490,7 +491,7 @@ LTBOOL CScreenHost::OnRButtonUp(int x, int y)
 		else
 			--m_nBandwidth;
 		m_pBandwidthCycle->SetSelIndex(m_nBandwidth);
-		UpdateBandwidth();
+		UpdateBandwidth(true);
         return LTTRUE;
 	}
 	return CBaseScreen::OnRButtonUp(x,y);
@@ -554,19 +555,35 @@ void CScreenHost::ReadyLaunch(LTBOOL bReady)
 	m_bReadyToLaunch = bReady;
 }
 
-void CScreenHost::UpdateBandwidth()
+void CScreenHost::UpdateBandwidth(bool bResetMaxPlayers)
 {
 	CUserProfile *pProfile = g_pProfileMgr->GetCurrentProfile();
+	pProfile->m_ServerGameOptions.m_nBandwidthServer = m_nBandwidth;
+
+	uint16 nBandwidth = 0;
 	if ( m_nBandwidth >= eBandwidth_Custom )
 	{
-		m_sBandwidth.Format( "%d", pProfile->m_ServerGameOptions.m_nBandwidthServerCustom);
-		m_pBandwidth->SetString(1,m_sBandwidth);
+		nBandwidth = pProfile->m_ServerGameOptions.m_nBandwidthServerCustom;
 	}
 	else
 	{
+		nBandwidth = g_BandwidthServer[m_nBandwidth];
+	}
+	uint8 nBandwidthMax = pProfile->m_ServerGameOptions.GetMaxPlayersForBandwidth();
 
-		m_sBandwidth.Format( "%d", g_BandwidthServer[m_nBandwidth]);
-		m_pBandwidth->SetString(1,m_sBandwidth);
+	m_sBandwidth.Format( "%d", nBandwidth);
+	m_pBandwidth->SetString(1,m_sBandwidth);
+
+	char szMax[32] = "";
+	sprintf(szMax,"(%s: %d)",LoadTempString(IDS_MAX_PLAYERS),nBandwidthMax);
+	m_pBandwidth->SetString(2,szMax);
+
+	if (!g_bLAN && bResetMaxPlayers)
+	{
+		pProfile->m_ServerGameOptions.GetDeathmatch().m_nMaxPlayers = nBandwidthMax;
+		pProfile->m_ServerGameOptions.GetDemolition().m_nMaxPlayers = nBandwidthMax;
+		pProfile->m_ServerGameOptions.GetDoomsday().m_nMaxPlayers = nBandwidthMax;
+		pProfile->m_ServerGameOptions.GetTeamDeathmatch().m_nMaxPlayers = nBandwidthMax;
 	}
 }
 
@@ -627,7 +644,7 @@ void CScreenHost::HandleCallback(uint32 dwParam1, uint32 dwParam2)
 				CUserProfile *pProfile = g_pProfileMgr->GetCurrentProfile();
 				pProfile->m_ServerGameOptions.m_nBandwidthServerCustom = (uint16)atol(m_sBandwidth);
 				m_pBandwidthCycle->UpdateData(LTFALSE);
-				UpdateBandwidth();
+				UpdateBandwidth(true);
 			}
 			else
 			{
