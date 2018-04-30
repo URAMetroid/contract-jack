@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="DibMgrMfcDll"
+	ProjectGUID="{D3D8B1B5-546F-4173-9AC4-334648FF9D56}"
+	Keyword="MakeFileProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="Debug"
+			IntermediateDirectory="Debug"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="DEVENV  /build &quot;Debug MFC DLL&quot; DibMgrMfcDll.sln"
+				ReBuildCommandLine="DEVENV  /rebuild &quot;Debug MFC DLL&quot; DibMgrMfcDll.sln"
+				CleanCommandLine="DEVENV  /clean &quot;Debug MFC DLL&quot; DibMgrMfcDll.sln"
+				Output="..\..\\built\$(ConfigurationName)\dibmgrmfcdll.lib"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="Release"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="DEVENV  /build &quot;Release MFC DLL&quot; DibMgrMfcDll.sln"
+				ReBuildCommandLine="DEVENV  /rebuild &quot;Release MFC DLL&quot; DibMgrMfcDll.sln"
+				CleanCommandLine="DEVENV  /clean &quot;Release MFC DLL&quot; DibMgrMfcDll.sln"
+				Output="..\..\\built\$(ConfigurationName)\dibmgrmfcdll.lib"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc">
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

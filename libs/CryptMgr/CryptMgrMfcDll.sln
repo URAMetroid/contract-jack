@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CryptMgr", "cryptmgr.vcproj", "{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Debug MFC DLL = Debug MFC DLL
+		Final = Final
+		Final MFC DLL = Final MFC DLL
+		Release = Release
+		Release MFC DLL = Release MFC DLL
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Debug.ActiveCfg = Debug|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Debug.Build.0 = Debug|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Debug MFC DLL.ActiveCfg = Debug MFC DLL|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Debug MFC DLL.Build.0 = Debug MFC DLL|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Final.ActiveCfg = Final|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Final.Build.0 = Final|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Final MFC DLL.ActiveCfg = Final MFC DLL|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Final MFC DLL.Build.0 = Final MFC DLL|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Release.ActiveCfg = Release|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Release.Build.0 = Release|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Release MFC DLL.ActiveCfg = Release MFC DLL|Win32
+		{3D5FD674-B6CA-45BB-B647-D0BAE3B02DF3}.Release MFC DLL.Build.0 = Release MFC DLL|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

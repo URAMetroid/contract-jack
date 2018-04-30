@@ -1,0 +1,33 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ButeMgr", "ButeMgr.vcproj", "{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Debug MFC DLL = Debug MFC DLL
+		Final = Final
+		Final MFC DLL = Final MFC DLL
+		Release = Release
+		Release MFC DLL = Release MFC DLL
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Debug.ActiveCfg = Debug|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Debug.Build.0 = Debug|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Debug MFC DLL.ActiveCfg = Debug MFC DLL|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Debug MFC DLL.Build.0 = Debug MFC DLL|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Final.ActiveCfg = Final|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Final.Build.0 = Final|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Final MFC DLL.ActiveCfg = Final MFC DLL|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Final MFC DLL.Build.0 = Final MFC DLL|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Release.ActiveCfg = Release|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Release.Build.0 = Release|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Release MFC DLL.ActiveCfg = Release MFC DLL|Win32
+		{410592D8-E99A-4C0A-A5A8-E2D87451F9AB}.Release MFC DLL.Build.0 = Release MFC DLL|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

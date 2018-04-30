@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="ButeMgrMfcDll"
+	ProjectGUID="{97A4AE50-2C3B-4065-9538-172B30A7CC53}"
+	SccProjectName="Perforce Project"
+	SccAuxPath=""
+	SccLocalPath="."
+	SccProvider="MSSCCI:Perforce SCM"
+	Keyword="MakeFileProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory=".\Debug"
+			IntermediateDirectory=".\Debug"
+			ConfigurationType="0"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="DEVENV  /build &quot;Debug MFC DLL&quot; ButeMgrMfcDll.sln"
+				ReBuildCommandLine="DEVENV  /rebuild &quot;Debug MFC DLL&quot; ButeMgrMfcDll.sln"
+				CleanCommandLine="DEVENV  /clean &quot;Debug MFC DLL&quot; ButeMgrMfcDll.sln"
+				Output="..\..\\built\$(ConfigurationName)\ButeMgrMfcDll.lib"/>
+		</Configuration>
+		<Configuration
+			Name="Final|Win32"
+			OutputDirectory=".\ButeMgrMfcDll___Win32_Final"
+			IntermediateDirectory=".\ButeMgrMfcDll___Win32_Final"
+			ConfigurationType="0"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="DEVENV  /build &quot;Final MFC DLL&quot; ButeMgrMfcDll.sln"
+				ReBuildCommandLine="DEVENV  /rebuild &quot;Final MFC DLL&quot; ButeMgrMfcDll.sln"
+				CleanCommandLine="DEVENV  /clean &quot;Final MFC DLL&quot; ButeMgrMfcDll.sln"
+				Output="..\..\\built\$(ConfigurationName)\ButeMgrMfcDll.lib"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory=".\Release"
+			IntermediateDirectory=".\Release"
+			ConfigurationType="0"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="DEVENV  /build &quot;Release MFC DLL&quot; ButeMgrMfcDll.sln"
+				ReBuildCommandLine="DEVENV  /rebuild &quot;Release MFC DLL&quot; ButeMgrMfcDll.sln"
+				CleanCommandLine="DEVENV  /clean &quot;Release MFC DLL&quot; ButeMgrMfcDll.sln"
+				Output="..\..\\built\$(ConfigurationName)\ButeMgrMfcDll.lib"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl">
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe">
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
