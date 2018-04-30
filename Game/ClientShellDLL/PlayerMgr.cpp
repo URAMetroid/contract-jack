@@ -51,9 +51,16 @@ CPlayerMgr* g_pPlayerMgr = NULL;
 
 #define MAX_SHAKE_AMOUNT		10.0f
 
-#define FOVX_ZOOMED				20.0f
+/*#define FOVX_ZOOMED				20.0f
 #define FOVX_ZOOMED1			7.0f
-#define FOVX_ZOOMED2			2.0f
+#define FOVX_ZOOMED2			2.0f*/
+float FOVX_ZOOMED =				20.0f;
+float FOVX_ZOOMED1 =			7.0f;
+float FOVX_ZOOMED2 =			2.0f;
+// URA
+//float Fov90 = DEG2RAD(90.0f);
+//float OldFov90 = Fov90;
+
 #define ZOOM_TIME				0.5f
 #define LOD_ZOOMADJUST			-5.0f
 #define DEFAULT_LOD_OFFSET				0.0f
@@ -388,7 +395,7 @@ LTBOOL CPlayerMgr::Init()
 	g_vtPlayerRotate.Init(g_pLTClient, "PlayerRotate", NULL, 1.0f);
 	g_vtCamZoom1MaxDist.Init(g_pLTClient, "CamZoom1MaxDist", NULL, 600.0f);
 	g_vtCamZoom2MaxDist.Init(g_pLTClient, "CamZoom2MaxDist", NULL, 1000.0f);
-	g_vtFOVXNormal.Init(g_pLTClient, "FovX", NULL, 90.0f);
+	g_vtFOVXNormal.Init(g_pLTClient, "FovX", NULL, g_pGameClientShell->WideFov(90.0f));
 	g_vtFOVYNormal.Init(g_pLTClient, "FovY", NULL, 78.0f);
 	g_vtFOVYMaxUW.Init(g_pLTClient, "FOVYUWMax", NULL, 78.0f);
 	g_vtFOVYMinUW.Init(g_pLTClient, "FOVYUWMin", NULL, 77.0f);
@@ -931,6 +938,9 @@ void CPlayerMgr::Update()
 
 		}
 	}
+	/*FOVX_ZOOMED = g_pGameClientShell->WideFov(20.0f);
+	FOVX_ZOOMED1 = g_pGameClientShell->WideFov(7.0f);
+	FOVX_ZOOMED2 = g_pGameClientShell->WideFov(2.0f);*/
 }
 
 // --------------------------------------------------------------------------- //
@@ -2018,6 +2028,11 @@ void CPlayerMgr::TurnOnAlternativeCamera(uint8 nCamType, float fFovX, float fFov
 {
 	g_pInterfaceMgr->SetLetterBox((nCamType == CT_CINEMATIC));
 
+	/////////////////////
+	//fFovX = g_pGameClientShell->WideFov(fFovX);
+	fFovX = 2 * RAD2DEG(((float)atan((((float)g_pInterfaceResMgr->GetScreenWidth()/640) / ((float)g_pInterfaceResMgr->GetScreenHeight()/480)) * ((float)tan(DEG2RAD(fFovX / 2.0f))))));
+	/////////////////////
+
 	SetCameraFOV( DEG2RAD(fFovX), DEG2RAD(fFovY) ); 
 
 	if (!m_bUsingExternalCamera)
@@ -2759,20 +2774,24 @@ void CPlayerMgr::UpdateCameraZoom()
     m_bZooming = LTTRUE;
 
 
-    float fFovXZoomed, fZoomDist;
+    float fFovXZoomed, fZoomDist;//, fZoomDistOld, fFovXZoomedOld;
 
 	if (m_bZoomingIn)
 	{
 		if (m_nZoomView == 1)
 		{
 			fFovXZoomed	= DEG2RAD(FOVX_ZOOMED);
+			//fFovXZoomedOld = DEG2RAD(20.0f);
 			fZoomDist	= DEG2RAD(g_vtFOVXNormal.GetFloat()) - fFovXZoomed;
+			//fZoomDistOld	= DEG2RAD(90.0f) - fFovXZoomed;
 		}
 		else if (m_nZoomView == 2)
 		{
 			fFovXZoomed	= DEG2RAD(FOVX_ZOOMED1);
+			//fFovXZoomedOld = DEG2RAD(7.0f);
 			// KLS - Always zoom all the way in...
 			fZoomDist	= DEG2RAD(g_vtFOVXNormal.GetFloat()) - fFovXZoomed;
+			//fZoomDistOld	= DEG2RAD(90.0f) - fFovXZoomed;
 			// Remove above code and uncomment line below to do old 
 			// step zoom behavoir
 			//fZoomDist	= DEG2RAD(FOVX_ZOOMED) - fFovXZoomed;
@@ -2780,8 +2799,10 @@ void CPlayerMgr::UpdateCameraZoom()
 		else if (m_nZoomView == 3)
 		{
 			fFovXZoomed	= DEG2RAD(FOVX_ZOOMED2);
+			//fFovXZoomedOld = DEG2RAD(2.0f);
 			// KLS - Always zoom all the way in...
 			fZoomDist	= DEG2RAD(g_vtFOVXNormal.GetFloat()) - fFovXZoomed;
+			//fZoomDistOld	= DEG2RAD(90.0f) - fFovXZoomed;
 			// Remove above code and uncomment line below to do old 
 			// step zoom behavoir
 			//fZoomDist	= DEG2RAD(FOVX_ZOOMED1) - fFovXZoomed;
@@ -2792,7 +2813,9 @@ void CPlayerMgr::UpdateCameraZoom()
 		if (m_nZoomView == 0)
 		{
 			fFovXZoomed	= DEG2RAD(g_vtFOVXNormal.GetFloat());
+			//fFovXZoomedOld = DEG2RAD(90.0f);
 			fZoomDist	= DEG2RAD(g_vtFOVXNormal.GetFloat()) - DEG2RAD(FOVX_ZOOMED);
+			//fZoomDistOld	= DEG2RAD(90.0f) - DEG2RAD(FOVX_ZOOMED);
 		}
 		else if (m_nZoomView == 1)
 		{
@@ -2808,8 +2831,11 @@ void CPlayerMgr::UpdateCameraZoom()
 
     float fZoomVel = fZoomDist / ZOOM_TIME;
     float fZoomAmount = fZoomVel * g_pGameClientShell->GetFrameTime();
+	//float OZM = (fZoomDistOld / ZOOM_TIME) * g_pGameClientShell->GetFrameTime();
 
 	// Zoom camera in or out...
+	//if (m_nZoomView != 0) fFovXZoomed = 2 * RAD2DEG(((float)atan((g_pInterfaceResMgr->GetRealXRatio()/g_pInterfaceResMgr->GetYRatio()) * ((float)tan(DEG2RAD(fFovXZoomed / 2.0f))))));
+	if (m_nZoomView != 0) fFovXZoomed = 2 * ((float)atan((((float)g_pInterfaceResMgr->GetScreenWidth()/640) / ((float)g_pInterfaceResMgr->GetScreenHeight()/480)) * ((float)tan(fFovXZoomed / 2.0f))));
 
 	if (m_bZoomingIn)
 	{
@@ -2818,13 +2844,19 @@ void CPlayerMgr::UpdateCameraZoom()
 			// Zoom camera in...
 
 			fovX -= fZoomAmount;
+			//Fov90 -= OZM;
+
+			//g_pGameClientShell->CSPrint("in fovX: %f - Fov90: %f - fZoomAmount: %f)", fovX, Fov90, fZoomAmount);
 		}
 
 		if (fovX <= fFovXZoomed)
 		{
 			fovX = fFovXZoomed;
+			//Fov90 = fFovXZoomedOld;
             m_bZooming = LTFALSE;
 			g_pInterfaceMgr->EndZoom();
+
+			//g_pGameClientShell->CSPrint("in=fovX: %f - Fov90: %f - fZoomAmount: %f)", fovX, Fov90, fZoomAmount);
 		}
 	}
 	else  // Zoom camera out...
@@ -2834,23 +2866,37 @@ void CPlayerMgr::UpdateCameraZoom()
 			// Zoom camera out...
 
 			fovX += fZoomAmount;
+			//Fov90 += /*fZoomAmount;/*/OZM;
+
+			//g_pGameClientShell->CSPrint("out fovX: %f - Fov90: %f - fZoomAmount: %f)", fovX, Fov90, fZoomAmount);
 		}
 
 		if (fovX >= fFovXZoomed)
 		{
 			fovX = fFovXZoomed;
+			//Fov90 = fFovXZoomed;//Old;
             m_bZooming = LTFALSE;
 			g_pInterfaceMgr->EndZoom();
 			if (m_nZoomView == 0)
 			{
 				EndZoom();
+				//Fov90 = OldFov90;
 			}
+
+			//g_pGameClientShell->CSPrint("out=fovX: %f - Fov90: %f - fZoomAmount: %f)", fovX, Fov90, fZoomAmount);
 		}
 	}
 
-	if (fOldFovX != fovX)
+	if (fOldFovX != fovX) // URA - Note: fovy needs to be locked to 4x3 value
 	{
-		fovY = (fovX * DEG2RAD(g_vtFOVYNormal.GetFloat())) / DEG2RAD(g_vtFOVXNormal.GetFloat());
+		// URA - from .php example, calculates to 90x73.73 not 90x78...
+		fovY = 2 * atan(tan(fovX/2)*((float)g_pInterfaceResMgr->GetScreenHeight()/(float)g_pInterfaceResMgr->GetScreenWidth()));
+
+		// URA - default 4:3
+		//fovY = (fovX * DEG2RAD(g_vtFOVYNormal.GetFloat())) / DEG2RAD(g_vtFOVXNormal.GetFloat());
+
+		//g_pGameClientShell->CSPrint("(%f * %f = %f) / %f = %f", Fov90, DEG2RAD(g_vtFOVYNormal.GetFloat()), Fov90 * DEG2RAD(g_vtFOVYNormal.GetFloat()), DEG2RAD(g_vtFOVXNormal.GetFloat()), fovY);
+		//g_pGameClientShell->CSPrint("g_vtFOVYNormal (%f) g_vtFOVXNormal (%f)", g_vtFOVYNormal.GetFloat(), g_vtFOVXNormal.GetFloat());
 
 		SetCameraFOV(fovX, fovY);
 
@@ -2864,7 +2910,7 @@ void CPlayerMgr::UpdateCameraZoom()
         //g_pLTClient->CPrint("Current FOV (%f, %f)", fovX, fovY);
         //g_pLTClient->CPrint("Current Zoom LODOffset: %f", fNewLODOffset);
 	}
-
+	//g_pGameClientShell->CSPrint("Current FOV (%f, %f)", RAD2DEG(fovX), RAD2DEG(fovY));
 }
 
 

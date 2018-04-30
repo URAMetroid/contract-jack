@@ -5349,3 +5349,14 @@ void CGameClientShell::CreateMPMissionFile()
 
 	filenames.clear();
 }
+
+float CGameClientShell::WideFov(float OldFOV)
+{
+	float a, b, c, d, pi;
+	pi = 3.141592f;
+	a = (float)tan(OldFOV / 2.0f * pi / 180.0f);
+	b = g_pInterfaceResMgr->GetRealXRatio()/g_pInterfaceResMgr->GetYRatio();
+	c = b * a;
+	d = (float)atan(c) * 180.0f / pi;
+	return 2 * d;
+}

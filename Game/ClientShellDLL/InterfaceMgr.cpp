@@ -462,7 +462,7 @@ LTBOOL CInterfaceMgr::Init()
     g_vtLetterBoxFadeOutTime.Init(g_pLTClient, "LetterBoxFadeOutTime", NULL, 1.0f);
     g_vtDisableMovies.Init(g_pLTClient, "NoMovies", NULL, 0.0f);
 
-    g_vtInterfaceFOVX.Init(g_pLTClient, "FovXInterface", NULL, 90.0f);
+    g_vtInterfaceFOVX.Init(g_pLTClient, "FovXInterface", NULL, 90.0f); // <------------<<<
     g_vtInterfaceFOVY.Init(g_pLTClient, "FovYInterface", NULL, 75.0f);
 
 	g_vtPauseTintAlpha.Init(g_pLTClient, "PauseTintAlpha", NULL, 0.65f);
@@ -630,6 +630,14 @@ LTBOOL CInterfaceMgr::Init()
 
 	// Consider ourselves initialized.
 	m_bInitialized = true;
+
+	NewFovX = g_pGameClientShell->WideFov(90.0f);
+		g_vtFOVXNormal.SetFloat(NewFovX);
+		g_vtInterfaceFOVX.SetFloat(NewFovX);
+		//std::ofstream log( "debug.txt", std::ios::out|std::ios::app);
+		//log << NewFovX << "\n";
+	float pvaspect = g_pGameClientShell->WideFov(1.2f);
+		WriteConsoleFloat("pvmodelaspect ", pvaspect);
 
     return LTTRUE;
 }
@@ -4567,6 +4575,13 @@ void CInterfaceMgr::ScreenDimsChanged()
 	// This may need to be changed to support in-game cinematics...
 
 	ResetMenuRestoreCamera(0, 0, dwWidth, dwHeight);
+
+	NewFovX = g_pGameClientShell->WideFov(90.0f);
+		g_vtFOVXNormal.SetFloat(NewFovX);
+		g_vtInterfaceFOVX.SetFloat(NewFovX);
+	float pvaspect = g_pGameClientShell->WideFov(1.2f);
+		WriteConsoleFloat("pvmodelaspect ", pvaspect);
+
     g_pLTClient->SetCameraRect (m_hInterfaceCamera, LTTRUE, 0, 0, dwWidth, dwHeight);
 
 	UpdateInterfaceBackground();
@@ -4918,7 +4933,8 @@ void CInterfaceMgr::CreateOverlay(eOverlayMask eMask)
 	if (m_hOverlays[eMask]) return;
 
 
-	m_fOverlayScaleMult[eMask] = g_pLayoutMgr->GetMaskScale(eMask);
+	m_fOverlayScaleMult[eMask] = g_pGameClientShell->WideFov( g_pLayoutMgr->GetMaskScale(eMask));
+	//m_fOverlayScaleMult[eMask] = g_pLayoutMgr->GetMaskScale(eMask);
 
 	ObjectCreateStruct createStruct;
 	INIT_OBJECTCREATESTRUCT(createStruct);

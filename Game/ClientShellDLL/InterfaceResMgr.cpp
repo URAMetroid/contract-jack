@@ -334,8 +334,12 @@ void CInterfaceResMgr::ScreenDimsChanged()
 	RMode currentMode;
     g_pLTClient->GetRenderMode(&currentMode);
 
-	m_fXRatio = (float)currentMode.m_Width / 640.0f;
+	m_fRealXRatio = (float)currentMode.m_Width / 640.0f;
 	m_fYRatio = (float)currentMode.m_Height / USABLE_HEIGHT_F;
+
+	/*if (m_fXRatio > 2.749f)
+		m_fXRatio = 2.749f;*/
+	m_fXRatio = /*/m_fRealXRatio;/**/m_fYRatio;
 
 	m_dwScreenWidth = currentMode.m_Width;
 	m_dwScreenHeight = currentMode.m_Height;

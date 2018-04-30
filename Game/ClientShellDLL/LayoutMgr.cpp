@@ -278,6 +278,8 @@
 static char s_aTagName[30];
 static char s_aAttName[30];
 
+bool HudScale = true;
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -516,6 +518,9 @@ LTBOOL CLayoutMgr::Init(const char* szAttributeFile)
 		m_nNumFonts++;
 		sprintf(s_aAttName, "FontFace%d", m_nNumFonts);
 	}
+
+	// URA - 
+	HudScale = GetConsoleInt("Hud",1) != 0;
 
 	return LTTRUE;
 }
@@ -1063,7 +1068,7 @@ LTIntPt CLayoutMgr::GetAmmoBasePos(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AMMO_BASEPOS))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AMMO_BASEPOS);
+	return GetPoint(s_aTagName, LO_HUD_AMMO_BASEPOS, false);
 }
 
 LTIntPt CLayoutMgr::GetAmmoClipOffset(int nLayout)
@@ -1072,7 +1077,7 @@ LTIntPt CLayoutMgr::GetAmmoClipOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AMMO_BAROFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AMMO_BAROFF);
+	return GetPoint(s_aTagName, LO_HUD_AMMO_BAROFF, true);
 }
 
 LTIntPt CLayoutMgr::GetAmmoClipUnitSize(int nLayout)
@@ -1081,7 +1086,7 @@ LTIntPt CLayoutMgr::GetAmmoClipUnitSize(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AMMO_CLIPSZ))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AMMO_CLIPSZ);
+	return GetPoint(s_aTagName, LO_HUD_AMMO_CLIPSZ, true);
 }
 
 
@@ -1091,7 +1096,7 @@ LTIntPt CLayoutMgr::GetAmmoBarOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AMMO_OFFSET))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AMMO_OFFSET);
+	return GetPoint(s_aTagName, LO_HUD_AMMO_OFFSET, true);
 }
 
 
@@ -1110,7 +1115,7 @@ LTIntPt CLayoutMgr::GetAmmoTextOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AMMO_TEXTOFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AMMO_TEXTOFF);
+	return GetPoint(s_aTagName, LO_HUD_AMMO_TEXTOFF, true);
 }
 
 
@@ -1120,7 +1125,7 @@ LTIntPt CLayoutMgr::GetAmmoIconOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AMMO_ICONOFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AMMO_ICONOFF);
+	return GetPoint(s_aTagName, LO_HUD_AMMO_ICONOFF, true);
 }
 
 uint8 CLayoutMgr::GetAmmoIconSize(int nLayout)
@@ -1174,7 +1179,7 @@ LTIntPt CLayoutMgr::GetHealthBasePos(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_HEALTH_BASEPOS))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_HEALTH_BASEPOS);
+	return GetPoint(s_aTagName, LO_HUD_HEALTH_BASEPOS, false);
 }
 
 LTIntPt CLayoutMgr::GetHealthBarOffset(int nLayout)
@@ -1183,7 +1188,7 @@ LTIntPt CLayoutMgr::GetHealthBarOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_HEALTH_BAROFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_HEALTH_BAROFF);
+	return GetPoint(s_aTagName, LO_HUD_HEALTH_BAROFF, true);
 }
 
 
@@ -1193,7 +1198,7 @@ LTIntPt CLayoutMgr::GetArmorBarOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_ARMOR_OFFSET))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_ARMOR_OFFSET);
+	return GetPoint(s_aTagName, LO_HUD_ARMOR_OFFSET, true);
 }
 
 
@@ -1212,7 +1217,7 @@ LTIntPt CLayoutMgr::GetHealthTextOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_HEALTH_TEXTOFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_HEALTH_TEXTOFF);
+	return GetPoint(s_aTagName, LO_HUD_HEALTH_TEXTOFF, true);
 }
 
 LTIntPt CLayoutMgr::GetArmorTextOffset(int nLayout)
@@ -1221,7 +1226,7 @@ LTIntPt CLayoutMgr::GetArmorTextOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_ARMOR_TEXTOFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_ARMOR_TEXTOFF);
+	return GetPoint(s_aTagName, LO_HUD_ARMOR_TEXTOFF, true);
 }
 
 
@@ -1240,7 +1245,7 @@ LTIntPt CLayoutMgr::GetHealthIconOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_HEALTH_ICONOFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_HEALTH_ICONOFF);
+	return GetPoint(s_aTagName, LO_HUD_HEALTH_ICONOFF, true);
 }
 
 LTIntPt CLayoutMgr::GetArmorIconOffset(int nLayout)
@@ -1249,7 +1254,7 @@ LTIntPt CLayoutMgr::GetArmorIconOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_ARMOR_ICONOFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_ARMOR_ICONOFF);
+	return GetPoint(s_aTagName, LO_HUD_ARMOR_ICONOFF, true);
 }
 
 uint8 CLayoutMgr::GetHealthIconSize(int nLayout)
@@ -1327,7 +1332,7 @@ LTIntPt CLayoutMgr::GetAirBasePos(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AIR_BASEPOS))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AIR_BASEPOS);
+	return GetPoint(s_aTagName, LO_HUD_AIR_BASEPOS, false);
 }
 
 LTIntPt CLayoutMgr::GetAirIconOffset(int nLayout)
@@ -1336,7 +1341,7 @@ LTIntPt CLayoutMgr::GetAirIconOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AIR_ICONOFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AIR_ICONOFF);
+	return GetPoint(s_aTagName, LO_HUD_AIR_ICONOFF, true);
 }
 
 
@@ -1356,7 +1361,7 @@ LTIntPt CLayoutMgr::GetAirTextOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AIR_TEXTOFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AIR_TEXTOFF);
+	return GetPoint(s_aTagName, LO_HUD_AIR_TEXTOFF, true);
 }
 
 
@@ -1376,7 +1381,7 @@ LTIntPt CLayoutMgr::GetAirBarOffset(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_AIR_BAROFF))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_AIR_BAROFF);
+	return GetPoint(s_aTagName, LO_HUD_AIR_BAROFF, true);
 }
 
 uint32 CLayoutMgr::GetAirColor(int nLayout)
@@ -1458,7 +1463,7 @@ LTIntPt CLayoutMgr::GetWeaponHeatBasePos(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_WEAPONHEAT_BASEPOS))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_WEAPONHEAT_BASEPOS);
+	return GetPoint(s_aTagName, LO_HUD_WEAPONHEAT_BASEPOS, false);
 }
 
 
@@ -1501,7 +1506,7 @@ LTIntPt CLayoutMgr::GetModeTextPos(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_MODE_TEXTPOS))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_MODE_TEXTPOS);
+	return GetPoint(s_aTagName, LO_HUD_MODE_TEXTPOS, true);
 }
 
 LTIntPt CLayoutMgr::GetDamageBasePos(int nLayout)
@@ -1510,7 +1515,7 @@ LTIntPt CLayoutMgr::GetDamageBasePos(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_DAMAGE_BASEPOS))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_DAMAGE_BASEPOS);
+	return GetPoint(s_aTagName, LO_HUD_DAMAGE_BASEPOS, false);
 }
 
 uint16 CLayoutMgr::GetDamageIconSize( int nLayout )
@@ -1654,7 +1659,7 @@ LTIntPt CLayoutMgr::GetObjectiveIconPos(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_OBJ_POS))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_OBJ_POS);
+	return GetPoint(s_aTagName, LO_HUD_OBJ_POS, false);
 }
 
 LTIntPt CLayoutMgr::GetObjectiveIconSize(int nLayout)
@@ -1663,7 +1668,7 @@ LTIntPt CLayoutMgr::GetObjectiveIconSize(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_OBJ_SZ))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_OBJ_SZ);
+	return GetPoint(s_aTagName, LO_HUD_OBJ_SZ, true);
 }
 
 float CLayoutMgr::GetObjectiveBlinkDuration(int nLayout)
@@ -1737,7 +1742,7 @@ LTIntPt CLayoutMgr::GetHidingBarOffset( int nLayout )
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_HIDE_OFFSET))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_HIDE_OFFSET);
+	return GetPoint(s_aTagName, LO_HUD_HIDE_OFFSET, true);
 }
 
 int CLayoutMgr::GetHidingBarHeight( int nLayout )
@@ -1810,7 +1815,7 @@ LTIntPt CLayoutMgr::GetActivationTextPos(int nLayout)
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_ACT_POS))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_ACT_POS);
+	return GetPoint(s_aTagName, LO_HUD_ACT_POS, true);
 }
 
 uint32 CLayoutMgr::GetActivationTextColor(int nLayout)
@@ -2020,7 +2025,7 @@ LTIntPt CLayoutMgr::GetProgressBarOffset( int nLayout )
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_PROG_OFFSET))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_PROG_OFFSET);
+	return GetPoint(s_aTagName, LO_HUD_PROG_OFFSET, true);
 }
 
 int CLayoutMgr::GetProgressBarHeight( int nLayout )
@@ -2065,7 +2070,7 @@ LTIntPt CLayoutMgr::GetDisplayMeterOffset( int nLayout )
 	if (!m_buteMgr.Exist(s_aTagName,LO_HUD_DISPLAYMETER_OFFSET))
 		sprintf(s_aTagName, "%s0", LO_HUD_TAG);
 
-	return GetPoint(s_aTagName, LO_HUD_DISPLAYMETER_OFFSET);
+	return GetPoint(s_aTagName, LO_HUD_DISPLAYMETER_OFFSET, true);
 }
 
 int CLayoutMgr::GetDisplayMeterHeight( int nLayout )
@@ -2501,10 +2506,10 @@ LTIntPt  CLayoutMgr::GetMenuIndent(eMenuID menuId)
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
 	if (menuId != MENU_ID_NONE && m_buteMgr.Exist(pTag,LO_MENU_INDENT))
 	{
-		return GetPoint(pTag, LO_MENU_INDENT);
+		return GetPoint(pTag, LO_MENU_INDENT, true);
 	}
 	else
-		return GetPoint(LO_DEFAULT_MENU_TAG, LO_MENU_INDENT);
+		return GetPoint(LO_DEFAULT_MENU_TAG, LO_MENU_INDENT, true);
 }
 
 uint32 CLayoutMgr::GetMenuSelectedColor(eMenuID menuId)
@@ -2578,7 +2583,7 @@ LTBOOL CLayoutMgr::MenuHasCustomValue(eMenuID menuId, char *pAttribute)
 LTIntPt  CLayoutMgr::GetMenuCustomPoint(eMenuID menuId, char *pAttribute)
 {
 	char* pTag = (char*)g_pInterfaceMgr->GetMenuMgr()->GetMenuName(menuId);
-	return GetPoint(pTag, pAttribute);
+	return GetPoint(pTag, pAttribute, true);
 }
 
 LTRect   CLayoutMgr::GetMenuCustomRect(eMenuID menuId, char *pAttribute)
@@ -2642,11 +2647,28 @@ int	CLayoutMgr::GetInt(char *pTag,char *pAttribute, int nDefault)
 	return m_buteMgr.GetInt(pTag, pAttribute, nDefault);
 }
 
-LTIntPt CLayoutMgr::GetPoint(char *pTag,char *pAttribute)
+LTIntPt CLayoutMgr::GetPoint(char *pTag,char *pAttribute, bool hud)
 {
     CPoint zero(0,0);
     CPoint tmp = m_buteMgr.GetPoint(pTag, pAttribute, zero);
+
+	/** Widescreen 4x3 center ******************************************************/
+	if (!hud)//(g_pInterfaceResMgr->GetXRatio() > g_pInterfaceResMgr->GetYRatio())
+	{
+		//std::ofstream log( "debug.txt", std::ios::out|std::ios::app);
+		//log << pTag << " " << pAttribute << " " << hud /*? "true ":"false "*/ << " " << tmp.x << " | ";
+		tmp.x += (g_pInterfaceResMgr->GetScreenWidth() / g_pInterfaceResMgr->GetYRatio() - 640) / 2;
+		//log << "+" << (g_pInterfaceResMgr->GetScreenWidth() / g_pInterfaceResMgr->GetYRatio() - 640) / 2 << "\n";
+	}
+	/*else
+	{
+		std::ofstream log( "debug.txt", std::ios::out|std::ios::app);
+		log << pTag << " " << pAttribute << " " << tmp.x << "\n";
+	}*/
+	/*******************************************************************************/
+
     LTIntPt pt(tmp.x,tmp.y);
+
 	return pt;
 }
 
@@ -2654,6 +2676,15 @@ LTRect CLayoutMgr::GetRect(char *pTag,char *pAttribute)
 {
     CRect zero(0,0,0,0);
     CRect tmp = m_buteMgr.GetRect(pTag, pAttribute, zero );
+
+	/** Widescreen 4x3 center ******************************************************/
+	//if (g_pInterfaceResMgr->GetXRatio() > g_pInterfaceResMgr->GetYRatio())
+	{
+		tmp.left += (g_pInterfaceResMgr->GetScreenWidth() / g_pInterfaceResMgr->GetYRatio() - 640) / 2;
+		tmp.right += (g_pInterfaceResMgr->GetScreenWidth() / g_pInterfaceResMgr->GetYRatio() - 640) / 2;
+	}
+	/*******************************************************************************/
+
     LTRect rect(tmp.left,tmp.top,tmp.right,tmp.bottom);
 	return rect;
 

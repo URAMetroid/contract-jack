@@ -265,7 +265,10 @@ void CHUDRadio::UpdateLayout()
 
 	m_Dlg.SetSize(m_nWidth,(offset.y+m_Offset.y));
 
-	m_Dlg.SetScale(g_pInterfaceResMgr->GetXRatio());
+	// URA - hi-res error easy fix
+	if (g_pInterfaceResMgr->GetXRatio() > 2.749)
+	{	m_Dlg.SetScale(2.749 /*URA2 g_pInterfaceResMgr->GetXRatio()*/);}
+	else {m_Dlg.SetScale(g_pInterfaceResMgr->GetXRatio());}
 }
 
 

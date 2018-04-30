@@ -71,6 +71,7 @@ public:
 	void				ConvertScreenPos(int &x, int &y);
     LTFLOAT             GetXRatio()                         {return m_fXRatio;}
     LTFLOAT             GetYRatio()                         {return m_fYRatio;}
+	LTFLOAT             GetRealXRatio()                     {return m_fRealXRatio;}
 
     uint32              GetScreenWidth();
     uint32              GetScreenHeight();
@@ -106,6 +107,7 @@ protected:
 
     LTFLOAT              m_fXRatio;
     LTFLOAT              m_fYRatio;
+	LTFLOAT				 m_fRealXRatio;
     uint32              m_dwScreenWidth;
     uint32              m_dwScreenHeight;
 

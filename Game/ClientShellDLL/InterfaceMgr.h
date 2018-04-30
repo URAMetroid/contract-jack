@@ -392,6 +392,8 @@ class CInterfaceMgr
 		// Called when a new game is started.
 		bool	StartingNewGame( );
 
+		float NewFovX;
+
 	protected:
 		CWeaponChooser	m_WeaponChooser;		// Next/previous weapon interface
 		CAmmoChooser	m_AmmoChooser;			// Next ammo interface

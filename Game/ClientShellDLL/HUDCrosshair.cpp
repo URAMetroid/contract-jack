@@ -145,9 +145,9 @@ void CHUDCrosshair::Render()
 			g_pDrawPrim->SetTexture(LTNULL);
 			g_pDrawPrim->SetRGBA(&m_Poly[2],argbWhite);
 
-			float x = 319.0f * g_pInterfaceResMgr->GetXRatio();
+			float x = 319.0f * g_pInterfaceResMgr->GetRealXRatio();
 			float y = 239.0f * g_pInterfaceResMgr->GetYRatio();
-			float w = 2.0f * g_pInterfaceResMgr->GetXRatio();
+			float w = 2.0f * g_pInterfaceResMgr->GetRealXRatio();
 
 			g_pDrawPrim->SetXYWH(&m_Poly[2],x,y,w,w);
 			g_pDrawPrim->DrawPrim(&m_Poly[2],1);
@@ -161,7 +161,7 @@ void CHUDCrosshair::Render()
 
 			float x = (float)g_pInterfaceResMgr->GetScreenWidth() / 2.0f;
 			float y = (float)g_pInterfaceResMgr->GetScreenHeight() / 2.0f;
-			float w = 2.0f * g_pInterfaceResMgr->GetXRatio();
+			float w = 2.0f * g_pInterfaceResMgr->GetRealXRatio();
 
 			g_pDrawPrim->SetXYWH(&m_Poly[2],x,y,w,w);
 			g_pDrawPrim->DrawPrim(&m_Poly[2],1);
@@ -299,9 +299,9 @@ void CHUDCrosshair::Update()
 	}
 
 
-	if (m_fScale != g_pInterfaceResMgr->GetXRatio())
+	if (m_fScale != g_pInterfaceResMgr->GetRealXRatio())
 	{
-		m_fScale = g_pInterfaceResMgr->GetXRatio();
+		m_fScale = g_pInterfaceResMgr->GetRealXRatio();
 
 		ScalePolies();
 
@@ -408,13 +408,13 @@ void CHUDCrosshair::RenderScope()
 
 	g_pDrawPrim->SetRGBA(&m_Poly[2],argbBlack);
 
-	float cx = 320.0f * g_pInterfaceResMgr->GetXRatio();
+	float cx = 320.0f * g_pInterfaceResMgr->GetRealXRatio();
 	float cy = 240.0f * g_pInterfaceResMgr->GetYRatio();
 
 	float hR = g_vtScopeLRRadius.GetFloat() * cx * 2.0f;
-	float hGap = g_vtScopeLRGap.GetFloat() * g_pInterfaceResMgr->GetXRatio();
+	float hGap = g_vtScopeLRGap.GetFloat() * g_pInterfaceResMgr->GetRealXRatio();
 	float vR = g_vtScopeUDRadius.GetFloat() * cx * 2.0f;
-	float vGap = g_vtScopeUDGap.GetFloat() * g_pInterfaceResMgr->GetXRatio();
+	float vGap = g_vtScopeUDGap.GetFloat() * g_pInterfaceResMgr->GetRealXRatio();
 
 
 	//left post

@@ -158,6 +158,8 @@ public:
 	// Creates the mpmission file dynamically.
 	void	CreateMPMissionFile();
 
+	float		WideFov(float OldFOV);
+
 protected :
     uint32      OnEngineInitialized(RMode *pMode, LTGUID *pAppGuid);
 	void		OnEngineTerm();

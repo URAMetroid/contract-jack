@@ -361,7 +361,7 @@ public:
     LTBOOL      GetBool(char *pTag,char *pAttribute, LTBOOL bDefault = LTFALSE);
     LTFLOAT     GetFloat(char *pTag,char *pAttribute, float fDefault = 0.0f);
 	int			GetInt(char *pTag,char *pAttribute, int nDefault = 0);
-    LTIntPt     GetPoint(char *pTag,char *pAttribute);
+    LTIntPt     GetPoint(char *pTag,char *pAttribute/**/, bool hud = false/**/);
     LTRect      GetRect(char *pTag,char *pAttribute);
 	void		GetString(char *pTag,char *pAttribute, char *pBuf, int nBufLen);
     LTVector    GetVector(char *pTag,char *pAttribute);
